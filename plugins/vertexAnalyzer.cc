@@ -19,10 +19,15 @@
 
 // system include files
 #include <memory>
+#include <TH1.h>
+#include <TH2.h>
+#include <TLorentzVector.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,6 +67,10 @@ class vertexAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     // ----------member data ---------------------------
 	EDGetTokenT<vector<reco::Vertex>> hltVertexToken_;
 	EDGetTokenT<vector<reco::Vertex>> offlineVertexToken_;
+    Service<TFileService> fs_;
+    map< string, TH1D* > histos1D_;
+    map< string, TH2D* > histos2D_;
+
 };
 
 //
@@ -113,19 +122,67 @@ void vertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if( foundOfflineVertexColl ) OfflineVertexCollection = *offlineVertexHandle;
 
     for ( auto const& hltVertex : HLTVertexCollection ) {
-    LogWarning("hltvertex") << hltVertex.ndof();
+        //LogWarning("hltvertex") << " ndof: " << hltVertex.ndof() << " z: " << hltVertex.z() << " rho: " << hltVertex.position().Rho();
+       
+        histos1D_["hlt_ndof"]->Fill( hltVertex.ndof() );
+        histos1D_["hlt_z"]->Fill( hltVertex.z() );
+        histos1D_["hlt_rho"]->Fill( hltVertex.position().Rho() );
+        histos1D_["hlt_ntracks"]->Fill( hltVertex.nTracks() );
+        histos1D_["hlt_chi2"]->Fill( hltVertex.chi2() );
+        histos1D_["hlt_normalizedchi2"]->Fill( hltVertex.normalizedChi2() );
+        histos1D_["hlt_trackssize"]->Fill( hltVertex.tracksSize() );
+        
+        double minDeltaR = 9999;
+        TLorentzVector tmphltVertex;
+        tmphltVertex.SetXYZT( hltVertex.x(), hltVertex.y(), hltVertex.z(), hltVertex.t() );
+        for ( auto const& offlineVertex : OfflineVertexCollection ) {
+            TLorentzVector tmpofflineVertex;
+            tmpofflineVertex.SetXYZT( offlineVertex.x(), offlineVertex.y(), offlineVertex.z(), offlineVertex.t() );
+            double tmpDeltaR = tmphltVertex.DeltaR( tmpofflineVertex );
+            if ( tmpDeltaR < minDeltaR ) {
+                minDeltaR= tmpDeltaR;
+            }
+                ///// HERE YOU NEED TO INCLUDE YOUR PLOTS, I JUST CREATE THE LOOP
+        }      
     }
 
     for ( auto const& offlineVertex : OfflineVertexCollection ) {
-    LogWarning("offlinevertex") << offlineVertex.ndof();
+        //LogWarning("offlinevertex") << offlineVertex.ndof();
+
+        histos1D_["offline_ndof"]->Fill( offlineVertex.ndof() );
+        histos1D_["offline_z"]->Fill( offlineVertex.z() );
+        histos1D_["offline_rho"]->Fill( offlineVertex.position().Rho() );
+        histos1D_["offline_ntracks"]->Fill( offlineVertex.nTracks() );
+        histos1D_["offline_chi2"]->Fill( offlineVertex.chi2() );
+        histos1D_["offline_normalizedchi2"]->Fill( offlineVertex.normalizedChi2() );
+        histos1D_["offline_trackssize"]->Fill( offlineVertex.tracksSize() );
     }
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void
-vertexAnalyzer::beginJob()
-{
+void vertexAnalyzer::beginJob() {
+
+  histos1D_[ "hlt_ndof" ] = fs_->make< TH1D >( "hlt_ndof", "hlt_ndof", 200, 0.0, 200.0 );
+  histos1D_[ "hlt_z" ] = fs_->make< TH1D >( "hlt_z", "hlt_z", 100, -20.0, 20.0 );
+  histos1D_[ "hlt_rho" ] = fs_->make< TH1D >( "hlt_rho", "hlt_rho", 100, -0.5, 0.5 );
+  histos1D_[ "hlt_ntracks" ] = fs_->make< TH1D >( "hlt_ntracks", "hlt_ntracks", 100, 0.0, 100.0 );
+  histos1D_[ "hlt_chi2" ] = fs_->make< TH1D >( "hlt_chi2", "hlt_chi2", 100, 0.0, 10.0 );
+  histos1D_[ "hlt_normalizedchi2" ] = fs_->make< TH1D >( "hlt_normalizedchi2", "hlt_normalizedchi2", 100, 0.0, 10.0 );
+  histos1D_[ "hlt_trackssize" ] = fs_->make< TH1D >( "hlt_trackssize", "hlt_trackssize", 100, 0.0, 100.0 );
+
+  histos1D_[ "offline_ndof" ] = fs_->make< TH1D >( "offline_ndof", "offline_ndof", 200, 0.0, 200.0 );
+  histos1D_[ "offline_z" ] = fs_->make< TH1D >( "offline_z", "offline_z", 100, -20.0, 20.0 );
+  histos1D_[ "offline_rho" ] = fs_->make< TH1D >( "offline_rho", "offline_rho", 100, -0.5, 0.5 );
+  histos1D_[ "offline_ntracks" ] = fs_->make< TH1D >( "offline_ntracks", "offline_ntracks", 100, 0.0, 100.0 );
+  histos1D_[ "offline_chi2" ] = fs_->make< TH1D >( "offline_chi2", "offline_chi2", 100, 0.0, 10.0 );
+  histos1D_[ "offline_normalizedchi2" ] = fs_->make< TH1D >( "offline_normalizedchi2", "offline_normalizedchi2", 100, 0.0, 10.0 );
+  histos1D_[ "offline_trackssize" ] = fs_->make< TH1D >( "offline_trackssize", "offline_trackssize", 100, 0.0, 100.0 );
+
+  ///// Sumw2 all the histos
+  for( auto const& histo : histos1D_ ) histos1D_[ histo.first ]->Sumw2();
+  for( auto const& histo : histos2D_ ) histos2D_[ histo.first ]->Sumw2();
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
