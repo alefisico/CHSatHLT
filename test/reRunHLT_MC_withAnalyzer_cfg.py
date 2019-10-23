@@ -18,7 +18,7 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 ##process.load('HLTrigger.Configuration.HLT_User_cff')
-process.load('PUHLT.CHSatHLT.HLT_User_cff')   ##### DONT FORGET TO CHANGE THIS
+process.load('PUHLT.PUmitigationatHLT.HLT_User_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
