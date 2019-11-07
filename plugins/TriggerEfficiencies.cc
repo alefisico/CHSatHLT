@@ -24,6 +24,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "PUHLT/PUmitigationatHLT/interface/CommonVariablesStructure.h"
 
@@ -48,6 +49,7 @@ class TriggerEfficiencies : public EDAnalyzer {
 	EDGetTokenT<PFJetCollection> triggerObjects_;
 	EDGetTokenT<PFJetCollection> recoJetToken_;
 	EDGetTokenT<PFJetCollection> patJetToken_;
+	EDGetTokenT<vector<reco::GenJet>> genJetToken_;
 	string baseTrigger_;
     vector<string> triggerPass_;
     vector<int> triggerOverlap_;
@@ -66,7 +68,8 @@ TriggerEfficiencies::TriggerEfficiencies(const ParameterSet& iConfig):
 	//triggerObjects_(consumes<trigger::TriggerFilterObjectWithRef>(iConfig.getParameter<InputTag>("objects"))),
 	triggerObjects_(consumes<PFJetCollection>(iConfig.getParameter<InputTag>("objects"))),
 	recoJetToken_(consumes<PFJetCollection>(iConfig.getParameter<InputTag>("recoJets"))),
-	patJetToken_(consumes<PFJetCollection>(iConfig.getParameter<InputTag>("patJets")))
+	patJetToken_(consumes<PFJetCollection>(iConfig.getParameter<InputTag>("patJets"))),
+	genJetToken_(consumes<vector<reco::GenJet>>(iConfig.getParameter<InputTag>("genJets")))
 {
 	baseTrigger_ = iConfig.getParameter<string>("baseTrigger");
 	triggerPass_ = iConfig.getParameter<vector<string>>("triggerPass");
@@ -84,11 +87,13 @@ void TriggerEfficiencies::analyze(const Event& iEvent, const EventSetup& iSetup)
 	Handle<PFJetCollection> triggerObjects;
 	Handle<PFJetCollection> recojets;
 	Handle<PFJetCollection> patjets;
+	Handle<vector<reco::GenJet>> genjets;
 
 	iEvent.getByToken(triggerBits_, triggerBits);
 	iEvent.getByToken(triggerObjects_, triggerObjects);
 	iEvent.getByToken(recoJetToken_, recojets);
 	iEvent.getByToken(patJetToken_, patjets);
+	iEvent.getByToken(genJetToken_, genjets);
 
 	const TriggerNames &names = iEvent.triggerNames(*triggerBits);
 
@@ -171,6 +176,22 @@ void TriggerEfficiencies::analyze(const Event& iEvent, const EventSetup& iSetup)
                         histos1D_[ "jet1PtDenom" ]->Fill( recojet.pt() );
                         if ( ORTriggers ) histos1D_[ "jet1PtPassing" ]->Fill( recojet.pt() );
                     }
+                }
+    
+                float mindr=10000;
+                int dummyInd = -1;
+                for (size_t i=0; i< genjets->size(); i++) {
+                    float dr = deltaR(recojet, (*genjets)[i]);
+                    if (dr < mindr){
+                        mindr=dr;
+                        if (mindr<0.2){ /// 0.3 is ok, but just to make sure
+                            dummyInd=i;
+                        }
+                    }
+                }
+                if (dummyInd>0){
+                    const reco::GenJet &matchGenJet = (*genjets)[dummyInd];
+                    LogWarning("genJet") << dummyInd << " " << mindr << " " << recojet.pt() << " " << matchGenJet.pt();
                 }
 
             }
@@ -365,6 +386,7 @@ void TriggerEfficiencies::fillDescriptions(ConfigurationDescriptions & descripti
 	desc.add<bool>("DEBUG", 	false);
 	desc.add<InputTag>("recoJets", 	InputTag("slimmedJetsAK8"));
 	desc.add<InputTag>("patJets", 	InputTag("slimmedJetsAK8"));
+	desc.add<InputTag>("genJets", 	InputTag("ak4GenJetsNoNu"));
 	vector<string> HLTPass;
 	HLTPass.push_back("HLT_AK8PFHT650_TrimR0p1PT0p03Mass50");
 	desc.add<vector<string>>("triggerPass",	HLTPass);
