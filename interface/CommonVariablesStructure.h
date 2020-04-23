@@ -53,7 +53,8 @@ inline bool jetID( double jetEta, double jetE, double jecFactor, double neutralH
 }
 
 
-inline bool checkTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerResults> triggerBits, Handle<PackedTriggerPrescales> triggerPrescales, TString HLTtrigger, bool baselineTrigger  ){
+inline bool checkTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerResults> triggerBits, TString HLTtrigger ){
+//inline bool checkTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerResults> triggerBits, Handle<PackedTriggerPrescales> triggerPrescales, TString HLTtrigger, bool baselineTrigger  ){
 
   	bool triggerFired = 0;
 	for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
@@ -68,11 +69,11 @@ inline bool checkTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerRe
 	return triggerFired;
 }	
 
-inline bool checkORListOfTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerResults> triggerBits, Handle<PackedTriggerPrescales> triggerPrescales, vector<string>  triggerPass, bool baselineTrigger  ){
+inline bool checkORListOfTriggerBitsMiniAOD( TriggerNames triggerNames, Handle<TriggerResults> triggerBits, vector<string>  triggerPass ){
 
 	vector<bool> triggersFired;
 	for (size_t t = 0; t < triggerPass.size(); t++) {
-		bool triggerFired = checkTriggerBitsMiniAOD( triggerNames, triggerBits, triggerPrescales, triggerPass[t], baselineTrigger );
+		bool triggerFired = checkTriggerBitsMiniAOD( triggerNames, triggerBits, triggerPass[t] );
 		triggersFired.push_back( triggerFired );
 		//LogWarning("trigger test") << triggerPass[t] << " " << triggerFired;
 		//if ( triggerFired ) LogWarning("trigger fired test") << triggerPass[t] << " " << triggerFired;

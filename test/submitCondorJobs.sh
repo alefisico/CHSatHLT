@@ -4,29 +4,24 @@ if [[ $# -eq 0 ]] ; then
     echo 'First argument, name of sample, is needed. Have a good day :)'
 else
 
-    sample=$1
-    fullTracking=$2
-    myproxy=/afs/cern.ch/user/a/algomez/x509up_u15148
-    #t3Dir=ttH/training/'${sample}'/
-    if [[ $fullTacking -eq 0 ]] ; then
-        typeTracking="offlineTracking"
-    else
-        typeTracking="fullTracking"
-    fi
+    myproxy=/afs/cern.ch/user/a/algomez/x509up_u15148  ################## MODIFY THIS LINE WITH YOUR PROXY
+    sample="QCDSample"
 
-    condorFile=${sample}_condorJobrunStep3_${typeTracking}
+    #sample=$1
+
+    condorFile=${sample}_condorJob
     echo '''
 universe    =  vanilla
-arguments   =  '${fullTracking}' $(myfile) $(ProcId)
+#arguments   =  $(myfile) $(ProcId)
 executable  =  '${PWD}'/condorlogs/'${condorFile}'.sh
 log         =  '${PWD}'/condorlogs/log_'${condorFile}'_$(ClusterId).log
 error       =  '${PWD}'/condorlogs/log_'${condorFile}'_$(ClusterId)-$(ProcId).err
 output      =  '${PWD}'/condorlogs/log_'${condorFile}'_$(ClusterId)-$(ProcId).out
-initialdir  =  '${PWD}'/
+#initialdir  =  '${PWD}'/
 getenv      =  True
-requirements = (OpSysAndVer =?= "SLCern6")
 +JobFlavour = "testmatch"
-queue myfile from '${sample}'.txt
+queue
+#queue myfile from '${sample}'.txt
 
     ''' > condorlogs/${condorFile}.sub
 
@@ -39,8 +34,8 @@ eval `scramv1 runtime -sh`
 
 echo ${1} ${2} ${3}
 cd -
-echo "Running: python '${PWD}'/step3_RAW2DIGI_RECO.py fullTracking=${1} inputFile=${2} outputFile=output_${3}"
-cmsRun '${PWD}'/step3_RAW2DIGI_RECO.py fullTracking=${1} inputFile=${2} outputFile="output_${3}"  maxEvents=10
+echo "Running: cmsRun '${PWD}'/reRunHLT_MC_withAnalyzer_cfg.py"
+cmsRun '${PWD}'/reRunHLT_MC_withAnalyzer_cfg.py
 
     ''' > condorlogs/${condorFile}.sh
 

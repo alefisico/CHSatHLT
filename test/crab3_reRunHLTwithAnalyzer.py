@@ -20,7 +20,7 @@ config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB = 2500
 config.JobType.numCores = 4
 #supportFiles = glob.glob('/afs/cern.ch/user/s/sdonato/AFSwork/public/genJetPtHadPU_RunIISummer15GS_ak4GenJetsNoNu/*txt')
-#config.JobType.inputFiles = supportFiles
+##config.JobType.inputFiles = supportFiles
 config.General.transferLogs = True
 
 config.Data.inputDataset = ''
@@ -28,7 +28,7 @@ config.Data.inputDataset = ''
 config.Data.publication = False
 #config.Data.ignoreLocality = True
 
-config.Site.storageSite = 'T3_CH_PSI'
+config.Site.storageSite = 'T2_CH_CERNBOX'
 config.Data.outLFNDirBase = '/store/user/'+os.environ['USER']+'/PUatHLT/'
 
 def submit(config):
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	from CRABAPI.RawCommand import crabCommand
 
 	Samples = [
-			['/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/RunIISpring18DR-NZSPU0to70_100X_upgrade2018_realistic_v10-v1/AODSIM', '/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/RunIISpring18DR-NZSPU0to70_100X_upgrade2018_realistic_v10-v1/GEN-SIM-RAW'],
+			['/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/Run3Winter20DRMiniAOD-DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/MINIAODSIM', '/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/Run3Winter20DRMiniAOD-DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/GEN-SIM-RAW'],
 			]
 
 
