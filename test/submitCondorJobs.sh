@@ -1,16 +1,20 @@
 #!/bin/bash
 
-if [[ $# -eq 0 ]] ; then
-    echo 'First argument, name of sample, is needed. Have a good day :)'
-else
+#if [[ $# -eq 0 ]] ; then
+#    echo 'First argument, name of sample, is needed. Have a good day :)'
+#else
 
-    myproxy=/afs/cern.ch/user/a/algomez/x509up_u15148  ################## MODIFY THIS LINE WITH YOUR PROXY
-    sample="QCDSample"
+myproxy=/afs/cern.ch/user/a/algomez/x509up_u15148  ################## MODIFY THIS LINE WITH YOUR PROXY
+sample="QCDSample"
 
-    #sample=$1
+#sample=$1
 
-    condorFile=${sample}_condorJob
-    echo '''
+if [ ! -d condorlogs/ ]; then
+    mkdir condorlogs/
+fi
+
+condorFile=${sample}_condorJob
+echo '''
 universe    =  vanilla
 #arguments   =  $(myfile) $(ProcId)
 executable  =  '${PWD}'/condorlogs/'${condorFile}'.sh
@@ -23,9 +27,9 @@ getenv      =  True
 queue
 #queue myfile from '${sample}'.txt
 
-    ''' > condorlogs/${condorFile}.sub
+''' > condorlogs/${condorFile}.sub
 
-    echo '''#!/bin/bash
+echo '''#!/bin/bash
 export SCRAM_ARCH=slc6_amd64_gcc700
 export X509_USER_PROXY='${myproxy}'
 
@@ -37,8 +41,8 @@ cd -
 echo "Running: cmsRun '${PWD}'/reRunHLT_MC_withAnalyzer_cfg.py"
 cmsRun '${PWD}'/reRunHLT_MC_withAnalyzer_cfg.py
 
-    ''' > condorlogs/${condorFile}.sh
+''' > condorlogs/${condorFile}.sh
 
-    condor_submit condorlogs/${condorFile}.sub
+condor_submit condorlogs/${condorFile}.sub
 
-fi
+#fi
