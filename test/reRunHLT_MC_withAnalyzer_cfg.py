@@ -20257,14 +20257,30 @@ process.TriggerResponseHLTPFSKHTPt30Eta5_step = cms.EndPath( process.TriggerResp
 
 
 #################### Trigger Efficiencies
-process.TriggerEfficienciesHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenu',
+process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenu',
         baseTrigger = cms.string("HLT_PFHTNoThreshold"),
-        triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojets = cms.InputTag("slimmedJetsPuppi"),
+        triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojetPt = cms.double( 30 ),
         recojetEta = cms.double( 2.4 ),
         AK8jets = cms.bool( False ),
         DEBUG = cms.bool(False)
 )
-process.TriggerEfficienciesHLTPFHT1050pt30_step = cms.EndPath( process.TriggerEfficienciesHLTPFHT1050pt30 )
+process.EffHLTPFHT1050pt30_step = cms.EndPath( process.EffHLTPFHT1050pt30 )
+
+for PU in [ '', 'CHS', 'PUPPI', 'SK' ]:
+    for HT in [ '850', '900', '950', '1000', '1050' ]:
+        for pt in [ 10, 20, 30, 40, 50 ]:
+            for eta in [ ('', 2.4), ('Eta5', 5.0) ]:
+                setattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT,
+                        process.EffHLTPFHT1050pt30.clone(
+                                                    baseTrigger = cms.string("HLT_PF"+PU+"HTNoThreshold"),
+                                                    triggerPass = cms.vstring([ 'HLT_PF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ] ),
+                                                    recojetPt = cms.double( pt ),
+                                                    recojetEta = cms.double( eta[1] ),
+                                                    ))
+                setattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT+"_step",
+                        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ) ) )
+
+
 
