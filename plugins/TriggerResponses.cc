@@ -191,7 +191,7 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
                     histos2D_[ "respRecoLeadJetEtavsReco" ]->Fill( recojet.eta(), responseRecoEta );
                 }
 
-                if (triggerJets.size()>=i){
+                if (triggerJets.size()>0){
                 
                     double responseHLTPt = (triggerJets)[i].pt() / recojet.genJet()->pt();
                     histos1D_[ "respHLTJetsPt" ]->Fill( responseHLTPt );
