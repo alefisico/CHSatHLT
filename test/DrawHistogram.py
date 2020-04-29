@@ -2,7 +2,6 @@
 '''
 File: DrawHistogram.py
 Author: Alejandro Gomez Espinosa
-Email: gomez@physics.rutgers.edu
 Description: My Draw histograms. Check for options at the end.
 '''
 
@@ -10,8 +9,9 @@ from ROOT import *
 import time, os, math, sys
 from array import array
 import argparse
-import PUHLT.PUmitigationatHLT.CMS_lumi as CMS_lumi
-import PUHLT.PUmitigationatHLT.tdrstyle as tdrstyle
+sys.path.insert(0,'../python/')
+import CMS_lumi as CMS_lumi
+import tdrstyle as tdrstyle
 
 #gROOT.Reset()
 gROOT.SetBatch()
@@ -480,14 +480,15 @@ def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log )
 
     for ifile in Samples:
         dictHistos = {}
-        outputFileName = name+'_'+ifile+'_'.join(listComparison)+'_meanResponse_'+args.version+'.'+args.extension
+        outputFileName = name+'_'+ifile+'_'.join([ x.split('PF')[1] for x in listComparison])+'_meanResponse_'+args.version+'.'+args.extension
         print 'Processing.......', outputFileName
 
-        legend=TLegend(0.70,0.65,0.90,0.90)
+        legend=TLegend(0.50,0.65,0.90,0.90)
         legend.SetFillStyle(0)
         legend.SetTextSize(0.04)
 
         for i,k in enumerate(listComparison):
+            print k+'/'+name
             tmp = Samples[ifile][0].Get(k+'/'+name)
             dictHistos[ k+ifile ] = tmp.ProfileX()
             dictHistos[ k+ifile ].SetName(k+ifile)
@@ -496,7 +497,7 @@ def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log )
             else: dictHistos[ k+ifile ].Rebin(len(rebin)-1, dictHistos[ k+ifile ].GetName(), array('d', rebin) )
 	    dictHistos[ k+ifile ].SetMarkerStyle(8)
 	    dictHistos[ k+ifile ].SetMarkerColor( i+1 )
-            legend.AddEntry( dictHistos[ k+ifile ], k.replace('RECOPUPPIHLTPF', ''), 'pl' )
+            legend.AddEntry( dictHistos[ k+ifile ], k.replace('TriggerResponse', ''), 'pl' )
 
 
         can1 = TCanvas('can1'+name, 'can1'+name,  10, 10, 750, 500 )
@@ -514,7 +515,7 @@ def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log )
         for ih in dictHistos:
             dictHistos[ih].Draw('e same')
         #labelAxis( name, diffEff[diffEff.iterkeys().next()], 'SoftDrop')
-        CMS_lumi.lumi_13TeV = ifile.split('_')[1]+' '
+        CMS_lumi.lumi_13TeV = ifile #.split('_')[1]+' '
         CMS_lumi.relPosX = 0.11
         CMS_lumi.cmsTextSize = 0.7
         CMS_lumi.extraOverCmsTextSize = 0.6
@@ -545,6 +546,7 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
+    if not os.path.exists('Plots/'): os.makedirs('Plots/')
     triggerlabX = 0.15
     triggerlabY = 1.0
     jetMassHTlabX = 0.87
@@ -561,14 +563,14 @@ if __name__ == '__main__':
 
         [ 'simple', 'genhltjet1HTreso', 'HT Response <HLT/Gen>', 0, 5, 1, True],
         [ 'simple', 'genhltjet1Ptreso', 'Leading jet pt Response <HLT/Gen>', 0, 5, 1, True],
-        [ 'meanRes', 'genrecojet1PtresovsgenPt', '<reco/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
-        [ 'meanRes', 'genrecojet1PtresovsrecoPt', '<reco/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
-        [ 'meanRes', 'genhltjet1PtresovsgenPt', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
-        [ 'meanRes', 'genhltjet1PtresovsrecoPt', '<hlt/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
-        [ 'meanRes', 'genrecojet1HTresovsgenHT', '<reco/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
-        [ 'meanRes', 'genrecojet1HTresovsrecoHT', '<reco/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
-        [ 'meanRes', 'genhltjet1HTresovsgenHT', '<hlt/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
-        [ 'meanRes', 'genhltjet1HTresovsrecoHT', '<hlt/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
+        [ 'meanRes', 'respRecoJetsPtvsGen', '<reco/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
+        [ 'meanRes', 'respRecoJetsPtvsReco', '<reco/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
+#        [ 'meanRes', 'genhltjet1PtresovsgenPt', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
+#        [ 'meanRes', 'genhltjet1PtresovsrecoPt', '<hlt/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
+#        [ 'meanRes', 'genrecojet1HTresovsgenHT', '<reco/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
+#        [ 'meanRes', 'genrecojet1HTresovsrecoHT', '<reco/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
+#        [ 'meanRes', 'genhltjet1HTresovsgenHT', '<hlt/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
+#        [ 'meanRes', 'genhltjet1HTresovsrecoHT', '<hlt/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
 
             ]
 
@@ -583,8 +585,7 @@ if __name__ == '__main__':
     CMS_lumi.lumi_13TeV = ''
 
     Samples = {}
-    Samples[ 'TTbar_NOPU' ] = [ TFile.Open('Rootfiles/simHLTwithAnalyzer_TTbar_NOPU_'+args.version+'.root'), 0 ]
-    Samples[ 'TTbar_PU200' ] = [ TFile.Open('Rootfiles/simHLTwithAnalyzer_TTbar_PU200_'+args.version+'.root'), 0 ]
+    Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
 
 
 #    processingSamples = {}
@@ -598,14 +599,14 @@ if __name__ == '__main__':
 
     for i in Plots:
         if args.proc.startswith('simple'):
-            for q in [ '', 'Pt20', 'Pt30', 'Pt40', 'Pt50' ]:
-                simpleResponse( i[0], ['RECOPUPPIHLTPFPUPPI'+q, 'RECOPUPPIHLTPFCHS'+q, 'RECOPUPPIHLTPFSK'+q ], i[1], i[2], i[3], i[4], i[5], i[5] )
+            for q in [ 'Pt30', 'Pt30Eta5' ]:
+                simpleResponse( i[0], ['TriggerResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[5] )
         elif args.proc.startswith('meanRes'):
-            for q in [ '', 'Pt20', 'Pt30', 'Pt40', 'Pt50' ]:
-                meanResponse( i[0], ['RECOPUPPIHLTPFPUPPI'+q, 'RECOPUPPIHLTPFCHS'+q, 'RECOPUPPIHLTPFSK'+q], i[1], i[2], i[3], i[4], i[5], i[6] )
+            for q in [ 'Pt30', 'Pt30Eta5' ]:
+                meanResponse( i[0], ['TriggerResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[6] )
 
 
-    '''
+    ''' MAYBE THIS IS NEEDED LATER< DONT ERASE IT
     for sam in processingSamples:
 
             CMS_lumi.lumi_13TeV = '' #str( round( (processingSamples[sam][1]/1000.), 1 ) )+" fb^{-1}"

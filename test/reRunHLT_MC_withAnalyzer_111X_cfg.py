@@ -12,10 +12,37 @@ process = cms.Process("HLT2")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         '/store/mc/Run3Winter20DRPremixMiniAOD/QCD_Pt_170to300_TuneCP5_14TeV_pythia8/MINIAODSIM/110X_mcRun3_2021_realistic_v6-v2/40000/9A7337FC-3C8D-814B-9657-9D9A85983032.root',
+##        '/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/MINIAODSIM/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/2CB2613C-8E15-2B46-92D4-7AA19F187123.root',
         ),
     secondaryFileNames = cms.untracked.vstring(
         '/store/mc/Run3Winter20DRPremixMiniAOD/QCD_Pt_170to300_TuneCP5_14TeV_pythia8/GEN-SIM-RAW/110X_mcRun3_2021_realistic_v6-v2/40000/D3EF89ED-4D5F-3B47-A060-0AF39308F67E.root',
         '/store/mc/Run3Winter20DRPremixMiniAOD/QCD_Pt_170to300_TuneCP5_14TeV_pythia8/GEN-SIM-RAW/110X_mcRun3_2021_realistic_v6-v2/40000/F534875E-FF81-4041-B5DB-D941FC917FCA.root'
+##        '/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/0C8F09DC-9066-424D-8797-FACB712E0414.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/13D2327B-D70B-8241-B900-1D8CFA9E33B8.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/1C0C729A-BC00-E548-A685-FAC660F1AE7F.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/1E4D6E4E-D74E-254B-B635-0D741E9FEE85.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/2507F7F2-A029-C04B-B2D7-0D0A9168039E.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/2630BFE9-F6DF-2340-B3B9-8AD51FD58502.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/27174C64-FFF0-9F46-A2A2-020C84363F61.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/312F290C-F82B-7B47-B394-6B93AFD160E5.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/3507964B-E833-B24C-9014-A7CEE6D38176.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/54DEE4B4-EE9B-F644-9A30-98A770C2D7FF.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/5A0713DA-8330-D34D-BCDA-68ACE3AF4F59.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/601FD68D-E174-2D4B-AB8C-38F1CB652543.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/6E7CA4E7-C254-D14D-97E7-79EB4A778CBA.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/739B1627-BAC2-A44F-B7C2-9FD1D7783654.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/73E1A54F-DD0D-A247-9BDE-A073B1E38160.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/7946FD05-D3AE-7144-8B82-8EDEF2313505.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/7E018C2C-79E2-F24F-A863-7C150138DD22.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/7F23499E-F23A-954D-9BEE-4158FEE68777.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/949D9AF9-A5D7-0A4F-B149-5D95AF2FB7B4.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/A405613D-1BC3-B14A-B7A1-ACD458829D54.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/AB7D22B7-D65D-0249-8040-175ACF71D3C9.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/C070269F-1479-3642-A8C0-5F267D3AD3D1.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/C0E4B736-F1AF-D548-AD0E-A3525527159E.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/CC839E29-6BD1-AC4A-AB5D-FDC89076427A.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/E8FA80DB-D4D1-EA40-9FF3-93AF4C5AA5C3.root',
+##	'/store/mc/Run3Winter20DRMiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/GEN-SIM-RAW/DRFlatPU30to80_110X_mcRun3_2021_realistic_v6-v2/10000/FF43DAE9-DAF0-B84E-BBC7-889841A08B0F.root',
     ),
     inputCommands = cms.untracked.vstring('keep *')
 )
@@ -5548,7 +5575,7 @@ process.datasets = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(1000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -20206,15 +20233,15 @@ process.TriggerResponseHLTPFHTPt30_step = cms.EndPath( process.TriggerResponseHL
 
 process.TriggerResponseHLTPFHTPt30Eta5 = process.TriggerResponseHLTPFHTPt30.clone(
         recojetPt = cms.double( 30 ),
-        recojetEta = cms.double( 5.0 ),
+        recojetEta = cms.double( 4.0 ),
         hltjetPt = cms.double( 30 ),
-        hltjetEta = cms.double( 5.0 ),
+        hltjetEta = cms.double( 4.0 ),
 )
 process.TriggerResponseHLTPFHTPt30Eta5_step = cms.EndPath( process.TriggerResponseHLTPFHTPt30Eta5 )
 
 process.TriggerResponseHLTPFCHSHTPt30 = process.TriggerResponseHLTPFHTPt30.clone(
         objects = cms.InputTag("hltAK4PFCHSJetsCorrected::HLT2"),
-        baseTrigger = cms.string("HLT_PFHTCHSNoThreshold"),
+        baseTrigger = cms.string("HLT_PFCHSHTNoThreshold"),
         )
 process.TriggerResponseHLTPFCHSHTPt30_step = cms.EndPath( process.TriggerResponseHLTPFCHSHTPt30 )
 
@@ -20228,7 +20255,7 @@ process.TriggerResponseHLTPFCHSHTPt30Eta5_step = cms.EndPath( process.TriggerRes
 
 process.TriggerResponseHLTPFPUPPIHTPt30 = process.TriggerResponseHLTPFHTPt30.clone(
         objects = cms.InputTag("hltAK4PFPUPPIJetsCorrected::HLT2"),
-        baseTrigger = cms.string("HLT_PFHTPUPPINoThreshold"),
+        baseTrigger = cms.string("HLT_PFPUPPIHTNoThreshold"),
         )
 process.TriggerResponseHLTPFPUPPIHTPt30_step = cms.EndPath( process.TriggerResponseHLTPFPUPPIHTPt30 )
 
@@ -20242,7 +20269,7 @@ process.TriggerResponseHLTPFPUPPIHTPt30Eta5_step = cms.EndPath( process.TriggerR
 
 process.TriggerResponseHLTPFSKHTPt30 = process.TriggerResponseHLTPFHTPt30.clone(
         objects = cms.InputTag("hltAK4PFSKJetsCorrected::HLT2"),
-        baseTrigger = cms.string("HLT_PFHTSKNoThreshold"),
+        baseTrigger = cms.string("HLT_PFSKHTNoThreshold"),
         )
 process.TriggerResponseHLTPFSKHTPt30_step = cms.EndPath( process.TriggerResponseHLTPFSKHTPt30 )
 
@@ -20257,14 +20284,30 @@ process.TriggerResponseHLTPFSKHTPt30Eta5_step = cms.EndPath( process.TriggerResp
 
 
 #################### Trigger Efficiencies
-process.TriggerEfficienciesHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenu',
+process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenu',
         baseTrigger = cms.string("HLT_PFHTNoThreshold"),
-        triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojets = cms.InputTag("slimmedJetsPuppi"),
+        triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojetPt = cms.double( 30 ),
         recojetEta = cms.double( 2.4 ),
         AK8jets = cms.bool( False ),
         DEBUG = cms.bool(False)
 )
-process.TriggerEfficienciesHLTPFHT1050pt30_step = cms.EndPath( process.TriggerEfficienciesHLTPFHT1050pt30 )
+process.EffHLTPFHT1050pt30_step = cms.EndPath( process.EffHLTPFHT1050pt30 )
+
+for PU in [ '', 'CHS', 'PUPPI', 'SK' ]:
+    for HT in [ '850', '900', '950', '1000', '1050' ]:
+        for pt in [ 10, 20, 30, 40, 50 ]:
+            for eta in [ ('', 2.4), ('Eta5', 5.0) ]:
+                setattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT,
+                        process.EffHLTPFHT1050pt30.clone(
+                                                    baseTrigger = cms.string("HLT_PF"+PU+"HTNoThreshold"),
+                                                    triggerPass = cms.vstring([ 'HLT_PF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ] ),
+                                                    recojetPt = cms.double( pt ),
+                                                    recojetEta = cms.double( eta[1] ),
+                                                    ))
+                setattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT+"_step",
+                        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ) ) )
+
+
 
