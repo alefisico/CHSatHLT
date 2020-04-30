@@ -434,12 +434,12 @@ def plot2D( inFile, sample, name, titleXAxis, titleXAxis2, Xmin, Xmax, rebinx, Y
 	del can
 
 ###################################################################
-def simpleResponse( name, listComparison, labelX, xmin, xmax, rebin, log, PU ):
+def simpleComparison( name, listComparison, labelX, xmin, xmax, rebin, log, PU ):
 
     for ifile in Samples:
 
         dictHistos = {}
-        legend=TLegend(0.70,0.65,0.90,0.90)
+        legend=TLegend( (0.60 if len(listComparison)>1 else 0.5 ),0.65,0.90,0.90)
         legend.SetFillStyle(0)
         legend.SetTextSize(0.04)
 
@@ -447,33 +447,42 @@ def simpleResponse( name, listComparison, labelX, xmin, xmax, rebin, log, PU ):
             dictHistos[ k+ifile ] = Samples[ifile][0].Get(k+'/'+name)
             dictHistos[ k+ifile ].SetLineColor( i+i+2 )
             dictHistos[ k+ifile ].SetLineWidth( 2 )
-            dictHistos[ k+ifile ].Scale( 1/dictHistos[ k+ifile ].Integral() )
-            legend.AddEntry( dictHistos[ k+ifile ], k.replace('RECOPUPPIHLTPF', ''), 'l' )
+            dictHistos[ k+ifile ].Rebin( rebin  )
+            try:
+                #dictHistos[ k+ifile ].Scale( 1/dictHistos[ next(iter(dictHistos)) ].Integral() )
+                dictHistos[ k+ifile ].Scale( 1/dictHistos[ k+ifile ].Integral() )
+                if name.startswith(('reco', 'numReco')): label = 'slimmedJetsPuppi '+k.split('HT')[1]
+                elif name.startswith('gen'): label = 'slimmedGenJets '+k.split('HT')[1]
+                else: label = k.split('PF')[1].replace('HT_', ' ')
+                legend.AddEntry( dictHistos[ k+ifile ], label, 'l' )
+            except ZeroDivisionError: dictHistos.pop(k+ifile)
 
-        outputFileName = name+'_'+ifile+'_'.join(listComparison)+'_simpleResponse_'+args.version+'.'+args.extension
+        outputFileName = name+'_'+ifile+'_'.join([ x.split('PF')[1] for x in listComparison])+'_simpleComparison_'+args.version+'.'+args.extension
         print 'Processing.......', outputFileName
 
         can1 = TCanvas('can1'+name, 'can1'+name,  10, 10, 750, 500 )
-        dictHistos[dictHistos.iterkeys().next()].GetYaxis().SetLabelSize(0.05)
-        dictHistos[dictHistos.iterkeys().next()].GetXaxis().SetLabelSize(0.05)
-        dictHistos[dictHistos.iterkeys().next()].GetYaxis().SetTitleSize(0.06)
-        dictHistos[dictHistos.iterkeys().next()].GetYaxis().SetTitleOffset(0.8)
-        dictHistos[dictHistos.iterkeys().next()].GetXaxis().SetTitleOffset(0.8)
-        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( 'Normalized / '+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1))+' GeV' )
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetLabelSize(0.05)
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetLabelSize(0.05)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleSize(0.06)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleOffset(0.9)
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetTitleOffset(0.8)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( 'Normalized / '+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetTitle( labelX )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetRangeUser( xmin, xmax )
+        dictHistos[next(iter(dictHistos))].SetMaximum( 1.2*max([ dictHistos[x].GetMaximum() for x in dictHistos  ]) )
         dictHistos[next(iter(dictHistos))].Draw('e')
         for ih in dictHistos:
             dictHistos[ih].Draw('histe same')
-        CMS_lumi.lumi_13TeV = ifile.split('_')[1]+' '
+        CMS_lumi.lumi_13TeV = ifile+' ' #.split('_')[1]+' '
         CMS_lumi.relPosX = 0.11
         CMS_lumi.cmsTextSize = 0.7
-        CMS_lumi.extraOverCmsTextSize = 0.6
+        CMS_lumi.extraOverCmsTextSize = 0.7
         CMS_lumi.CMS_lumi(can1, 4, 0)
         legend.Draw()
 
         can1.SaveAs( 'Plots/'+outputFileName )
         del can1
+        del dictHistos
 
 ###################################################################
 def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log ):
@@ -557,12 +566,40 @@ if __name__ == '__main__':
 
     plotList = [
 
-        [ '1D', 'HT', 500, 2000, 'HT [GeV]', 20, triggerlabX, triggerlabY, True],
-        [ 'tmp', 'jet1SoftDropMass', 0, 500, 1, triggerlabX, triggerlabY, True],
         [ '2D', 'jet1SDMassvsPt', 'Leading SD Jet Mass [GeV]', 'Leading Jet Pt [GeV]', 20, 200, 20, 400, 800, 50, 0.85, 0.2],
 
-        [ 'simple', 'genhltjet1HTreso', 'HT Response <HLT/Gen>', 0, 5, 1, True],
-        [ 'simple', 'genhltjet1Ptreso', 'Leading jet pt Response <HLT/Gen>', 0, 5, 1, True],
+        [ 'simple', 'hltJetsPt', 'HLT jets pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'hltJetsEta', 'HLT jets eta', -5, 5, 2, True],
+        [ 'simple', 'hltLeadJetPt', 'HLT leading jet pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'hltLeadJetEta', 'HLT leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'hltHT', 'HLT HT [GeV]', 0, 2000, 50, True],
+        [ 'simple', 'hltnumJets', 'HLT number of jets', 0, 10, 1, True],
+        [ 'simple', 'hltPUJetsPt', 'HLT pu jets pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, True],
+        [ 'simple', 'recoJetsPt', 'RECO jets pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'recoJetsEta', 'RECO jets eta', -5, 5, 2, True],
+        [ 'simple', 'recoLeadJetPt', 'RECO leading jet pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'recoLeadJetEta', 'RECO leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'recoHT', 'RECO HT [GeV]', 0, 2000, 50, True],
+        ##[ 'simple', 'numRecoJets', 'RECO number of jets', 0, 10, 1, True],
+        [ 'simple', 'recoPUJetsPt', 'RECO pu jets pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'recoPUJetsEta', 'RECO pu jets eta', -5, 5, 2, True],
+        [ 'simple', 'genJetsPt', 'GEN jets pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'genJetsEta', 'GEN jets eta', -5, 5, 2, True],
+        [ 'simple', 'genLeadJetPt', 'GEN leading jet pt [GeV]', 0, 500, 10, True],
+        [ 'simple', 'genLeadJetEta', 'GEN leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'genHT', 'GEN HT [GeV]', 0, 2000, 50, True],
+        [ 'simple', 'respHLTJetsPt', 'Jets pt Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTJetsEta', 'Jets eta Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTLeadJetPt', 'Leading jet pt Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTLeadJetEta', 'Leading jet eta Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTJetsHT', 'HT Response <hlt/gen>', 0, 5, 1, True],
+        ###[ 'simple', 'respRecoJetsHT', 'HT Response <reco/gen>', 0, 5, 1, True],
+        ##[ 'simple', 'respRecoJetsPt', 'Jets pt Response <reco/gen>', 0, 5, 1, True],
+        ##[ 'simple', 'respRecoJetsEta', 'Jets eta Response <reco/gen>', 0, 5, 1, True],
+        ##[ 'simple', 'respRecoLeadJetPt', 'Leading jet pt Response <reco/gen>', 0, 5, 1, True],
+        ##[ 'simple', 'respRecoLeadJetEta', 'Leading jet eta Response <reco/gen>', 0, 5, 1, True],
+
         [ 'meanRes', 'respRecoJetsPtvsGen', '<reco/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
         [ 'meanRes', 'respRecoJetsPtvsReco', '<reco/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
 #        [ 'meanRes', 'genhltjet1PtresovsgenPt', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
@@ -585,6 +622,7 @@ if __name__ == '__main__':
     CMS_lumi.lumi_13TeV = ''
 
     Samples = {}
+    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC.root'), 0 ]
     Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
 
 
@@ -599,35 +637,24 @@ if __name__ == '__main__':
 
     for i in Plots:
         if args.proc.startswith('simple'):
-            for q in [ 'Pt30', 'Pt30Eta5' ]:
-                simpleResponse( i[0], ['TriggerResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[5] )
+            cuts = [ 'Pt10', 'Pt20','Pt30','Pt40','Pt50', 'Pt10Eta5', 'Pt20Eta5', 'Pt30Eta5', 'Pt40Eta5', 'Pt50Eta5' ]
+            for q in cuts:
+                PUlist = [''] if i[0].startswith(('reco', 'gen', 'numReco')) else [ '', 'CHS', 'PUPPI', 'SK' ]
+                simpleComparison( i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in PUlist  ], i[1], i[2], i[3], i[4], i[5], i[5] )
         elif args.proc.startswith('meanRes'):
             for q in [ 'Pt30', 'Pt30Eta5' ]:
-                meanResponse( i[0], ['TriggerResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[6] )
+                meanResponse( i[0], ['ResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[6] )
 
 
     ''' MAYBE THIS IS NEEDED LATER< DONT ERASE IT
-    for sam in processingSamples:
+        elif '2D' in args.proc:
+                plot2DTriggerEfficiency( TFile.Open('Rootfiles/'+processingSamples[sam][0]),
+                                        sam,
+                                        BASEDTrigger,
+                                        i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10] )
 
-            CMS_lumi.lumi_13TeV = '' #str( round( (processingSamples[sam][1]/1000.), 1 ) )+" fb^{-1}"
-            #if 'SingleMu' in sam: BASEDTrigger = 'IsoMu27'
-            #elif 'JetHT' in sam: BASEDTrigger = 'PFJet40'
-            #else: BASEDTrigger = ''
-
-            for i in Plots:
-                    if '1D' in args.proc:
-                            effList[ sam ] = plotTriggerEfficiency( TFile.Open('Rootfiles/'+processingSamples[sam][0]),
-                                                                    sam,
-                                                                    BASEDTrigger,
-                                                                    i[0], args.cut, i[1], i[2], i[3], i[4], i[5], i[6], i[7] )
-                    elif '2D' in args.proc:
-                            plot2DTriggerEfficiency( TFile.Open('Rootfiles/'+processingSamples[sam][0]),
-                                                    sam,
-                                                    BASEDTrigger,
-                                                    i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10] )
-
-                    elif '2d' in args.proc:
-                            plot2D( TFile.Open('Rootfiles/'+processingSamples[sam][0]),
-                                            sam,
-                                            i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10] )
+        elif '2d' in args.proc:
+                plot2D( TFile.Open('Rootfiles/'+processingSamples[sam][0]),
+                                sam,
+                                i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10] )
     '''
