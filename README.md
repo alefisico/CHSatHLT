@@ -32,8 +32,22 @@ The script `crab3_reRunHLTwithAnalyzer.py` will send the job to crab. You will n
 You need to manually modify the number of events in the `reRunHLT_MC_withAnalyzer_cfg.py` file. Look for `process.maxEvents` and modify the number of events (`-1` is for all).
 Then, the script `submitCondorJobs.sh` will make all the job for you. Just modify the proxy in that file, then you run it as `source submitCondorJobs.sh`
 
+The output of crab usually contains several files like `reRunHLTwithAnalyzer_MC_*.root`. You can use the `hadd` command from root to merge the files. For instance, if the files are located in an EOS area like `/eos/home-a/algomez/PUatHLT/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/crab_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_TriggerStudies_v01/200430_101648/0000/`:
+```
+hadd QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8.root  /eos/home-a/algomez/PUatHLT/PUatHLT/QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8/crab_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_TriggerStudies_v01/200430_101648/0000/reRunHLT*root
+```
+The file `QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8.root` can be used to further analyze the histograms created in the previous step.
+
 #### How to create python files to rerun HLT
 
 ```bash
 hltGetConfiguration --offline --full --mc  /users/algomez/PUatHLT --setup /dev/CMSSW_11_0_0/GRun --input /store/mc/Run3Winter20DRPremixMiniAOD/QCD_Pt_170to300_TuneCP5_14TeV_pythia8/GEN-SIM-RAW/110X_mcRun3_2021_realistic_v6-v2/40000/A623EE66-618D-FC43-B4FC-6C4029CD68FB.root --unprescale --process HLT2 --globaltag 110X_mcRun3_2021_realistic_v6 --no-output  > HLT_PUatHLT_111pre5.py
 ```
+
+#### Draw histograms 
+
+A [DrawHistograms.py](test/DrawHistograms.py) python script can be use to create histograms. Currently it is very specific for the output of the reRunHLT step above. The script assumes that the input file is located under `test/Rootfiles/`, and creates two types of histograms: mean response and comparison of different histograms. To run it:
+```
+python DrawHistograms.py -v v01 -p simple
+```
+`-p` can be `simple` for a simple comparison of different selections, or `meanRes` to compare different responses. `-v` is to include a version, just for bookkepping. The output plots are located under `test/Plots/`, to open them you could use `eog`, or `display` within lxplus, or copy them local to your machine with `scp`.
