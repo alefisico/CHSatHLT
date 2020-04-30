@@ -17,7 +17,7 @@ config.General.workArea = 'crab_projects'
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'reRunHLT_MC_withAnalyzer_cfg.py'
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxMemoryMB = 2500
+config.JobType.maxMemoryMB = 5000
 config.JobType.numCores = 4
 #supportFiles = glob.glob('/afs/cern.ch/user/s/sdonato/AFSwork/public/genJetPtHadPU_RunIISummer15GS_ak4GenJetsNoNu/*txt')
 ##config.JobType.inputFiles = supportFiles
@@ -28,7 +28,8 @@ config.Data.inputDataset = ''
 config.Data.publication = False
 #config.Data.ignoreLocality = True
 
-config.Site.storageSite = 'T2_CH_CERNBOX'
+config.Site.storageSite = 'T3_CH_PSI'
+#config.Site.storageSite = 'T2_CH_CERNBOX'
 config.Data.outLFNDirBase = '/store/user/'+os.environ['USER']+'/PUatHLT/'
 
 def submit(config):
