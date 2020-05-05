@@ -460,7 +460,8 @@ def simpleComparison( name, listComparison, labelX, xmin, xmax, rebin, log, PU )
         outputFileName = name+'_'+ifile+'_'.join([ x.split('PF')[1] for x in listComparison])+'_simpleComparison_'+args.version+'.'+args.extension
         print 'Processing.......', outputFileName
 
-        can1 = TCanvas('can1'+name, 'can1'+name,  10, 10, 750, 500 )
+        can1 = TCanvas(outputFileName, outputFileName,  10, 10, 750, 500 )
+        if log: can1.SetLogy()
         dictHistos[next(iter(dictHistos))].GetYaxis().SetLabelSize(0.05)
         dictHistos[next(iter(dictHistos))].GetXaxis().SetLabelSize(0.05)
         dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleSize(0.06)
@@ -506,10 +507,10 @@ def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log )
             else: dictHistos[ k+ifile ].Rebin(len(rebin)-1, dictHistos[ k+ifile ].GetName(), array('d', rebin) )
 	    dictHistos[ k+ifile ].SetMarkerStyle(8)
 	    dictHistos[ k+ifile ].SetMarkerColor( i+1 )
-            legend.AddEntry( dictHistos[ k+ifile ], k.replace('TriggerResponse', ''), 'pl' )
+            legend.AddEntry( dictHistos[ k+ifile ], k.replace('Response', ''), 'pl' )
 
 
-        can1 = TCanvas('can1'+name, 'can1'+name,  10, 10, 750, 500 )
+        can1 = TCanvas(outputFileName, outputFileName,  10, 10, 750, 500 )
         dictHistos[dictHistos.iterkeys().next()].SetMinimum(0)
         dictHistos[dictHistos.iterkeys().next()].SetMaximum(2)
         dictHistos[dictHistos.iterkeys().next()].GetYaxis().SetLabelSize(0.05)
@@ -535,7 +536,62 @@ def meanResponse( name, listComparison, labelY, labelX, xmin, xmax, rebin, log )
         del can1
 
 
+
 ###################################################################
+def simpleComparisonTwoFiles( files, histName, listComparison, labelX, xmin, xmax, rebin, log, PU ):
+
+    for k in listComparison:
+
+        dictHistos = {}
+        legend=TLegend( 0.5,0.75,0.90,0.90)
+        legend.SetFillStyle(0)
+        legend.SetTextSize(0.04)
+        labels = []
+        for i, ifile in enumerate(files):
+            if histName.startswith('resp'):
+                tmp = ifile[0].Get(k+'/'+histName)
+                dictHistos[ k+ifile[1] ] = tmp.ProfileX(k+ifile[1])
+                dictHistos[ k+ifile[1] ].SetMarkerStyle(8)
+                dictHistos[ k+ifile[1] ].SetMarkerColor( i+i+1 )
+            else: dictHistos[ k+ifile[1] ] = ifile[0].Get(k+'/'+histName)
+            dictHistos[ k+ifile[1] ].SetLineColor( i+i+2 )
+            dictHistos[ k+ifile[1] ].SetLineWidth( 2 )
+            dictHistos[ k+ifile[1] ].Rebin( rebin  )
+            labels.append(ifile[1])
+            try:
+                if not histName.startswith('resp'): dictHistos[ k+ifile[1] ].Scale( 1/dictHistos[ k+ifile[1] ].Integral() )
+                label = k.split('PF')[1].replace('HT_', ' ')+' '+ifile[1]
+                legend.AddEntry( dictHistos[ k+ifile[1] ], label, 'pl' )
+            except ZeroDivisionError: dictHistos.pop(k+ifile[1])
+
+        print labels
+        outputFileName = histName+'_'+k+'_'.join(labels)+'_simpleComparison_'+args.version+'.'+args.extension
+        print 'Processing.......', outputFileName
+
+        can1 = TCanvas(outputFileName, outputFileName,  10, 10, 750, 500 )
+        if log: can1.SetLogy()
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetLabelSize(0.05)
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetLabelSize(0.05)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleSize(0.06)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleOffset(0.9)
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetTitleOffset(0.8)
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( ('Response' if histName.startswith('resp') else 'Normalized / ')+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetTitle( labelX )
+        dictHistos[next(iter(dictHistos))].GetXaxis().SetRangeUser( xmin, xmax )
+        dictHistos[next(iter(dictHistos))].SetMaximum( 1.2*max([ dictHistos[x].GetMaximum() for x in dictHistos  ]) )
+        dictHistos[next(iter(dictHistos))].Draw('e')
+        for ih in dictHistos:
+            dictHistos[ih].Draw('e same')
+        CMS_lumi.lumi_13TeV = ' ' #.split('_')[1]+' '
+        CMS_lumi.relPosX = 0.11
+        CMS_lumi.cmsTextSize = 0.7
+        CMS_lumi.extraOverCmsTextSize = 0.7
+        CMS_lumi.CMS_lumi(can1, 4, 0)
+        legend.Draw()
+
+        can1.SaveAs( 'Plots/'+outputFileName )
+        del can1
+        del dictHistos
 
 ###################################################################
 if __name__ == '__main__':
@@ -569,30 +625,30 @@ if __name__ == '__main__':
         [ '2D', 'jet1SDMassvsPt', 'Leading SD Jet Mass [GeV]', 'Leading Jet Pt [GeV]', 20, 200, 20, 400, 800, 50, 0.85, 0.2],
 
         [ 'simple', 'hltJetsPt', 'HLT jets pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'hltJetsEta', 'HLT jets eta', -5, 5, 2, True],
+        [ 'simple', 'hltJetsEta', 'HLT jets eta', -5, 5, 2, False],
         [ 'simple', 'hltLeadJetPt', 'HLT leading jet pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'hltLeadJetEta', 'HLT leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'hltLeadJetEta', 'HLT leading jet eta', -5, 5, 2, False],
         [ 'simple', 'hltHT', 'HLT HT [GeV]', 0, 2000, 50, True],
         [ 'simple', 'hltnumJets', 'HLT number of jets', 0, 10, 1, True],
         [ 'simple', 'hltPUJetsPt', 'HLT pu jets pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, True],
+        [ 'simple', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, False],
         [ 'simple', 'recoJetsPt', 'RECO jets pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'recoJetsEta', 'RECO jets eta', -5, 5, 2, True],
+        [ 'simple', 'recoJetsEta', 'RECO jets eta', -5, 5, 2, False],
         [ 'simple', 'recoLeadJetPt', 'RECO leading jet pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'recoLeadJetEta', 'RECO leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'recoLeadJetEta', 'RECO leading jet eta', -5, 5, 2, False],
         [ 'simple', 'recoHT', 'RECO HT [GeV]', 0, 2000, 50, True],
         ##[ 'simple', 'numRecoJets', 'RECO number of jets', 0, 10, 1, True],
         [ 'simple', 'recoPUJetsPt', 'RECO pu jets pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'recoPUJetsEta', 'RECO pu jets eta', -5, 5, 2, True],
+        [ 'simple', 'recoPUJetsEta', 'RECO pu jets eta', -5, 5, 2, False],
         [ 'simple', 'genJetsPt', 'GEN jets pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'genJetsEta', 'GEN jets eta', -5, 5, 2, True],
+        [ 'simple', 'genJetsEta', 'GEN jets eta', -5, 5, 2, False],
         [ 'simple', 'genLeadJetPt', 'GEN leading jet pt [GeV]', 0, 500, 10, True],
-        [ 'simple', 'genLeadJetEta', 'GEN leading jet eta', -5, 5, 2, True],
+        [ 'simple', 'genLeadJetEta', 'GEN leading jet eta', -5, 5, 2, False],
         [ 'simple', 'genHT', 'GEN HT [GeV]', 0, 2000, 50, True],
         [ 'simple', 'respHLTJetsPt', 'Jets pt Response <hlt/gen>', 0, 5, 1, True],
-        [ 'simple', 'respHLTJetsEta', 'Jets eta Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTJetsEta', 'Jets eta Response <hlt/gen>', 0, 5, 1, False],
         [ 'simple', 'respHLTLeadJetPt', 'Leading jet pt Response <hlt/gen>', 0, 5, 1, True],
-        [ 'simple', 'respHLTLeadJetEta', 'Leading jet eta Response <hlt/gen>', 0, 5, 1, True],
+        [ 'simple', 'respHLTLeadJetEta', 'Leading jet eta Response <hlt/gen>', 0, 5, 1, False],
         [ 'simple', 'respHLTJetsHT', 'HT Response <hlt/gen>', 0, 5, 1, True],
         ###[ 'simple', 'respRecoJetsHT', 'HT Response <reco/gen>', 0, 5, 1, True],
         ##[ 'simple', 'respRecoJetsPt', 'Jets pt Response <reco/gen>', 0, 5, 1, True],
@@ -600,19 +656,37 @@ if __name__ == '__main__':
         ##[ 'simple', 'respRecoLeadJetPt', 'Leading jet pt Response <reco/gen>', 0, 5, 1, True],
         ##[ 'simple', 'respRecoLeadJetEta', 'Leading jet eta Response <reco/gen>', 0, 5, 1, True],
 
-        [ 'meanRes', 'respRecoJetsPtvsGen', '<reco/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
-        [ 'meanRes', 'respRecoJetsPtvsReco', '<reco/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
-#        [ 'meanRes', 'genhltjet1PtresovsgenPt', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 1000, 20, True],
-#        [ 'meanRes', 'genhltjet1PtresovsrecoPt', '<hlt/gen>', 'Reco jet pt [GeV]', 0, 1000, 20, True],
-#        [ 'meanRes', 'genrecojet1HTresovsgenHT', '<reco/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
-#        [ 'meanRes', 'genrecojet1HTresovsrecoHT', '<reco/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
-#        [ 'meanRes', 'genhltjet1HTresovsgenHT', '<hlt/gen>', 'Gen HT [GeV]', 500, 2000, 20, True],
-#        [ 'meanRes', 'genhltjet1HTresovsrecoHT', '<hlt/gen>', 'Reco HT [GeV]', 500, 2000, 20, True],
+        [ 'meanRes', 'respRecoJetsPtvsGen', '<reco/gen>', 'Gen jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respRecoJetsPtvsReco', '<reco/gen>', 'Reco jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respRecoJetsEtavsGen', '<reco/gen>', 'Gen jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respRecoJetsEtavsReco', '<reco/gen>', 'Reco jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTJetsPtvsGen', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respHLTJetsPtvsHLT', '<hlt/gen>', 'HLT jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respHLTJetsPtvsEtaGen', '<hlt/gen>', 'Gen jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTJetsPtvsEtaHLT', '<hlt/gen>', 'HLT jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTJetsEtavsGen', '<hlt/gen>', 'Gen jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTJetsEtavsHLT', '<hlt/gen>', 'HLT jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTLeadJetPtvsGen', '<hlt/gen>', 'Gen jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respHLTLeadJetPtvsHLT', '<hlt/gen>', 'HLT jet pt [GeV]', 0, 500, 10, True],
+        [ 'meanRes', 'respHLTLeadJetPtvsEtaGen', '<hlt/gen>', 'Gen jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTLeadJetPtvsEtaHLT', '<hlt/gen>', 'HLT jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTLeadJetEtavsGen', '<hlt/gen>', 'Gen jet eta', -5, 5, 2, True],
+        [ 'meanRes', 'respHLTLeadJetEtavsHLT', '<hlt/gen>', 'HLT jet eta', -5, 5, 2, True],
 
+        [ 'compa', 'hltJetsPt', 'HLT jets pt [GeV]', 0, 500, 10, True],
+        [ 'compa', 'hltJetsEta', 'HLT jets eta', -5, 5, 2, False],
+        [ 'compa', 'hltLeadJetPt', 'HLT leading jet pt [GeV]', 0, 500, 10, True],
+        [ 'compa', 'hltLeadJetEta', 'HLT leading jet eta', -5, 5, 2, True],
+        [ 'compa', 'hltHT', 'HLT HT [GeV]', 0, 2000, 50, True],
+        [ 'compa', 'hltnumJets', 'HLT number of jets', 0, 10, 1, True],
+        [ 'compa', 'hltPUJetsPt', 'HLT pu jets pt [GeV]', 0, 500, 10, True],
+        [ 'compa', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, False],
+        [ 'compa', 'respHLTJetsPtvsEtaGen', 'Gen jet eta', -5, 5, 2, False],
+        [ 'compa', 'respHLTJetsPtvsEtaHLT', 'HLT jet eta', -5, 5, 2, False],
             ]
 
     if 'all' in args.single: Plots = [ x[1:] for x in plotList if x[0] in args.proc ]
-    else: Plots = [ y[1:] for y in plotList if ( ( y[0] in args.proc ) and ( y[1] in args.single ) )  ]
+    else: Plots = [ y[1:] for y in plotList if ( ( y[0] in args.proc ) and ( y[1].startswith(args.single ) ))  ]
 
 
     effList = {}
@@ -637,13 +711,23 @@ if __name__ == '__main__':
 
     for i in Plots:
         if args.proc.startswith('simple'):
-            cuts = [ 'Pt10', 'Pt20','Pt30','Pt40','Pt50', 'Pt10Eta5', 'Pt20Eta5', 'Pt30Eta5', 'Pt40Eta5', 'Pt50Eta5' ]
+            #cuts = [ 'Pt10', 'Pt20','Pt30','Pt40','Pt50', 'Pt10Eta5', 'Pt20Eta5', 'Pt30Eta5', 'Pt40Eta5', 'Pt50Eta5' ]
+            cuts = [ 'Pt10', 'Pt30','Pt50', 'Pt10Eta5', 'Pt30Eta5', 'Pt50Eta5' ]
             for q in cuts:
                 PUlist = [''] if i[0].startswith(('reco', 'gen', 'numReco')) else [ '', 'CHS', 'PUPPI', 'SK' ]
                 simpleComparison( i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in PUlist  ], i[1], i[2], i[3], i[4], i[5], i[5] )
         elif args.proc.startswith('meanRes'):
-            for q in [ 'Pt30', 'Pt30Eta5' ]:
-                meanResponse( i[0], ['ResponseHLTPF'+pu+'HT'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[6] )
+            cuts = [ 'Pt10', 'Pt30','Pt50', 'Pt10Eta5', 'Pt30Eta5', 'Pt50Eta5' ]
+            for q in cuts:
+                meanResponse( i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5], i[6] )
+        elif args.proc.startswith('compa'):
+            cuts = [ 'Pt10','Pt30','Pt50', 'Pt10Eta5', 'Pt30Eta5', 'Pt50Eta5' ]
+            for q in cuts:
+                PUlist = [ '', 'CHS', 'PUPPI' ]
+                simpleComparisonTwoFiles(
+                        [ [TFile('reRunHLTwithAnalyzer_MC_PixelVertices.root'), 'PixelVertices'],
+                        [ TFile('reRunHLTwithAnalyzer_MC_VerticesPFFilter.root'), 'VericesPFFilter'] ],
+                        i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in PUlist  ], i[1], i[2], i[3], i[4], i[5], i[5] )
 
 
     ''' MAYBE THIS IS NEEDED LATER< DONT ERASE IT

@@ -98,6 +98,7 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
         int numHLTJets = 0;
         
         PFJetCollection triggerJets;
+        PFJetCollection PUtriggerJets;
         for ( auto const& triggerJet : *triggerObjects ) {
 
             // first cleaning since we can not go lower in pt anyway
@@ -128,6 +129,7 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
                 }
             }
             if (dummyMin>0.4) {
+                PUtriggerJets.push_back( triggerJet );
                 histos1D_[ "hltPUJetsPt" ]->Fill( triggerJet.pt() );
                 histos1D_[ "hltPUJetsEta" ]->Fill( triggerJet.eta() );
             }
@@ -135,6 +137,7 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
         //histos2D_[ "hltJetPtvsMass" ]->Fill( hltPt, hltMass );
         histos1D_[ "hltnumJets" ]->Fill( numHLTJets );
+        histos1D_[ "hltnumPUJets" ]->Fill( PUtriggerJets.size() );
 	    
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -145,6 +148,7 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
         double recoHT = 0;
         double genHT = 0;
         int numRecoJets = 0;
+        int numPURecoJets = 0;
         for (unsigned i = 0; i < recojets->size(); ++i) {
 
             const pat::Jet &recojet = (*recojets)[i];
@@ -197,10 +201,14 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
                     histos1D_[ "respHLTJetsPt" ]->Fill( responseHLTPt );
                     histos2D_[ "respHLTJetsPtvsGen" ]->Fill( recojet.genJet()->pt(), responseHLTPt );
                     histos2D_[ "respHLTJetsPtvsHLT" ]->Fill( (triggerJets)[i].pt(), responseHLTPt );
+                    histos2D_[ "respHLTJetsPtvsEtaGen" ]->Fill( recojet.genJet()->eta(), responseHLTPt );
+                    histos2D_[ "respHLTJetsPtvsEtaHLT" ]->Fill( (triggerJets)[i].eta(), responseHLTPt );
                     if (numHLTJets==1){
                         histos1D_[ "respHLTLeadJetPt" ]->Fill( responseHLTPt );
                         histos2D_[ "respHLTLeadJetPtvsGen" ]->Fill( recojet.genJet()->pt(), responseHLTPt );
                         histos2D_[ "respHLTLeadJetPtvsHLT" ]->Fill( (triggerJets)[i].pt(), responseHLTPt );
+                        histos2D_[ "respHLTLeadJetPtvsEtaGen" ]->Fill( recojet.genJet()->eta(), responseHLTPt );
+                        histos2D_[ "respHLTLeadJetPtvsEtaHLT" ]->Fill( (triggerJets)[i].eta(), responseHLTPt );
                     }
 
                     double responseHLTEta = (triggerJets)[i].eta() / recojet.genJet()->eta();
@@ -215,11 +223,14 @@ void TriggerResponses::analyze(const Event& iEvent, const EventSetup& iSetup) {
                 }
 
             } else {
+                numPURecoJets++;
                 histos1D_[ "recoPUJetsPt" ]->Fill( recojet.pt() );
                 histos1D_[ "recoPUJetsEta" ]->Fill( recojet.eta() );
             }
         }
 
+        histos1D_[ "numRecoJets" ]->Fill( numRecoJets );
+        histos1D_[ "numPURecoJets" ]->Fill( numPURecoJets );
         histos1D_[ "hltHT" ]->Fill( hltHT );
         histos1D_[ "recoHT" ]->Fill( recoHT );
         if (genHT>0) {
@@ -250,6 +261,7 @@ void TriggerResponses::beginJob() {
 	histos1D_[ "hltnumJets" ] = fs_->make< TH1D >( "hltnumJets", "hltnumJets", 20, 0., 20. );
 	histos1D_[ "hltPUJetsPt" ] = fs_->make< TH1D >( "hltPUJetsPt", "hltPUJetsPt", 2000, 0., 2000. );
 	histos1D_[ "hltPUJetsEta" ] = fs_->make< TH1D >( "hltPUJetsEta", "hltPUJetsEta", 100, -5, 5 );
+	histos1D_[ "hltnumPUJets" ] = fs_->make< TH1D >( "hltnumPUJets", "hltnumPUJets", 20, 0., 20. );
 
 	//histos2D_[ "hltJetPtvsMass" ] = fs_->make< TH2D >( "hltJetPtvsMass", "hltJetPtvsMass", 2000, 0., 2000., 2000, 0., 2000. );
 
@@ -261,6 +273,7 @@ void TriggerResponses::beginJob() {
 	histos1D_[ "recoLeadJetEta" ] = fs_->make< TH1D >( "recoLeadJetEta", "recoLeadJetEta", 100, -5., 5. );
 	histos1D_[ "recoHT" ] = fs_->make< TH1D >( "recoHT", "recoHT", 100, 0., 2000. );
 	histos1D_[ "numRecoJets" ] = fs_->make< TH1D >( "numRecoJets", "numRecoJets", 20, 0., 20. );
+	histos1D_[ "numPURecoJets" ] = fs_->make< TH1D >( "numPURecoJets", "numPURecoJets", 20, 0., 20. );
 
 	histos1D_[ "genJetsPt" ] = fs_->make< TH1D >( "genJetsPt", "genJetsPt", 1000, 0., 1000. );
 	histos1D_[ "genJetsEta" ] = fs_->make< TH1D >( "genJetsEta", "genJetsEta", 100, -5., 5. );
@@ -283,12 +296,16 @@ void TriggerResponses::beginJob() {
 	histos1D_[ "respHLTJetsPt" ] = fs_->make< TH1D >( "respHLTJetsPt", "respHLTJetsPt", 40, 0., 10. );
 	histos2D_[ "respHLTJetsPtvsGen" ] = fs_->make< TH2D >( "respHLTJetsPtvsGen", "respHLTJetsPtvsGen", 2000, 0., 2000., 40, 0., 10. );
 	histos2D_[ "respHLTJetsPtvsHLT" ] = fs_->make< TH2D >( "respHLTJetsPtvsHLT", "respHLTJetsPtvsHLT", 2000, 0., 2000., 40, 0., 10. );
+	histos2D_[ "respHLTJetsPtvsEtaGen" ] = fs_->make< TH2D >( "respHLTJetsPtvsEtaGen", "respHLTJetsPtvsEtaGen", 100, -5, 5, 40, 0., 10. );
+	histos2D_[ "respHLTJetsPtvsEtaHLT" ] = fs_->make< TH2D >( "respHLTJetsPtvsEtaHLT", "respHLTJetsPtvsEtaHLT", 100, -5, 5, 40, 0., 10. );
 	histos1D_[ "respHLTJetsEta" ] = fs_->make< TH1D >( "respHLTJetsEta", "respHLTJetsEta", 40, 0., 10. );
 	histos2D_[ "respHLTJetsEtavsGen" ] = fs_->make< TH2D >( "respHLTJetsEtavsGen", "respHLTJetsEtavsGen", 100, -5., 5., 40, 0., 10. );
 	histos2D_[ "respHLTJetsEtavsHLT" ] = fs_->make< TH2D >( "respHLTJetsEtavsHLT", "respHLTJetsEtavsHLT", 100, -5., 5., 40, 0., 10. );
 	histos1D_[ "respHLTLeadJetPt" ] = fs_->make< TH1D >( "respHLTLeadJetPt", "respHLTLeadJetPt", 40, 0., 10. );
 	histos2D_[ "respHLTLeadJetPtvsGen" ] = fs_->make< TH2D >( "respHLTLeadJetPtvsGen", "respHLTLeadJetPtvsGen", 2000, 0., 2000., 40, 0., 10. );
 	histos2D_[ "respHLTLeadJetPtvsHLT" ] = fs_->make< TH2D >( "respHLTLeadJetPtvsHLT", "respHLTLeadJetPtvsHLT", 2000, 0., 2000., 40, 0., 10. );
+	histos2D_[ "respHLTLeadJetPtvsEtaGen" ] = fs_->make< TH2D >( "respHLTLeadJetPtvsEtaGen", "respHLTLeadJetPtvsEtaGen", 100, -5, 5, 40, 0., 10. );
+	histos2D_[ "respHLTLeadJetPtvsEtaHLT" ] = fs_->make< TH2D >( "respHLTLeadJetPtvsEtaHLT", "respHLTLeadJetPtvsEtaHLT", 100, -5, 5, 40, 0., 10. );
 	histos1D_[ "respHLTLeadJetEta" ] = fs_->make< TH1D >( "respHLTLeadJetEta", "respHLTLeadJetEta", 40, 0., 10. );
 	histos2D_[ "respHLTLeadJetEtavsGen" ] = fs_->make< TH2D >( "respHLTLeadJetEtavsGen", "respHLTLeadJetEtavsGen", 100, -5., 5., 40, 0., 10. );
 	histos2D_[ "respHLTLeadJetEtavsHLT" ] = fs_->make< TH2D >( "respHLTLeadJetEtavsHLT", "respHLTLeadJetEtavsHLT", 100, -5., 5., 40, 0., 10. );
