@@ -450,7 +450,7 @@ def simpleComparison( name, listComparison, labelX, xmin, xmax, rebin, log, PU )
             dictHistos[ k+ifile ].Rebin( rebin  )
             try:
                 #dictHistos[ k+ifile ].Scale( 1/dictHistos[ next(iter(dictHistos)) ].Integral() )
-                dictHistos[ k+ifile ].Scale( 1/dictHistos[ k+ifile ].Integral() )
+                if not name.startswith(('num','hltnum')): dictHistos[ k+ifile ].Scale( 1/dictHistos[ k+ifile ].Integral() )
                 if name.startswith(('reco', 'numReco')): label = 'slimmedJetsPuppi '+k.split('HT')[1]
                 elif name.startswith('gen'): label = 'slimmedGenJets '+k.split('HT')[1]
                 else: label = k.split('PF')[1].replace('HT_', ' ')
@@ -467,10 +467,12 @@ def simpleComparison( name, listComparison, labelX, xmin, xmax, rebin, log, PU )
         dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleSize(0.06)
         dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleOffset(0.9)
         dictHistos[next(iter(dictHistos))].GetXaxis().SetTitleOffset(0.8)
-        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( 'Normalized / '+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( ('Normalized' if not name.startswith(('num','hltnum')) else 'Events' )+' / '+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetTitle( labelX )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetRangeUser( xmin, xmax )
         dictHistos[next(iter(dictHistos))].SetMaximum( 1.2*max([ dictHistos[x].GetMaximum() for x in dictHistos  ]) )
+        #dictHistos[next(iter(dictHistos))].SetMaximum( 10e4 )
+        #dictHistos[next(iter(dictHistos))].SetMinimum( 1 )
         dictHistos[next(iter(dictHistos))].Draw('e')
         for ih in dictHistos:
             dictHistos[ih].Draw('histe same')
@@ -552,7 +554,7 @@ def simpleComparisonTwoFiles( files, histName, listComparison, labelX, xmin, xma
                 tmp = ifile[0].Get(k+'/'+histName)
                 dictHistos[ k+ifile[1] ] = tmp.ProfileX(k+ifile[1])
                 dictHistos[ k+ifile[1] ].SetMarkerStyle(8)
-                dictHistos[ k+ifile[1] ].SetMarkerColor( i+i+1 )
+                dictHistos[ k+ifile[1] ].SetMarkerColor( i+i+2 )
             else: dictHistos[ k+ifile[1] ] = ifile[0].Get(k+'/'+histName)
             dictHistos[ k+ifile[1] ].SetLineColor( i+i+2 )
             dictHistos[ k+ifile[1] ].SetLineWidth( 2 )
@@ -630,6 +632,7 @@ if __name__ == '__main__':
         [ 'simple', 'hltLeadJetEta', 'HLT leading jet eta', -5, 5, 2, False],
         [ 'simple', 'hltHT', 'HLT HT [GeV]', 0, 2000, 50, True],
         [ 'simple', 'hltnumJets', 'HLT number of jets', 0, 10, 1, True],
+        [ 'simple', 'hltnumPUJets', 'HLT number of PU jets', 0, 10, 1, True],
         [ 'simple', 'hltPUJetsPt', 'HLT pu jets pt [GeV]', 0, 500, 10, True],
         [ 'simple', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, False],
         [ 'simple', 'recoJetsPt', 'RECO jets pt [GeV]', 0, 500, 10, True],
@@ -637,7 +640,8 @@ if __name__ == '__main__':
         [ 'simple', 'recoLeadJetPt', 'RECO leading jet pt [GeV]', 0, 500, 10, True],
         [ 'simple', 'recoLeadJetEta', 'RECO leading jet eta', -5, 5, 2, False],
         [ 'simple', 'recoHT', 'RECO HT [GeV]', 0, 2000, 50, True],
-        ##[ 'simple', 'numRecoJets', 'RECO number of jets', 0, 10, 1, True],
+        [ 'simple', 'numRecoJets', 'RECO number of jets', 0, 10, 1, True],
+        [ 'simple', 'numPURecoJets', 'RECO number of PU jets', 0, 10, 1, True],
         [ 'simple', 'recoPUJetsPt', 'RECO pu jets pt [GeV]', 0, 500, 10, True],
         [ 'simple', 'recoPUJetsEta', 'RECO pu jets eta', -5, 5, 2, False],
         [ 'simple', 'genJetsPt', 'GEN jets pt [GeV]', 0, 500, 10, True],
@@ -696,8 +700,8 @@ if __name__ == '__main__':
     CMS_lumi.lumi_13TeV = ''
 
     Samples = {}
-    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC.root'), 0 ]
-    Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
+    Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC.root'), 0 ]
+    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
 
 
 #    processingSamples = {}
@@ -726,7 +730,7 @@ if __name__ == '__main__':
                 PUlist = [ '', 'CHS', 'PUPPI' ]
                 simpleComparisonTwoFiles(
                         [ [TFile('reRunHLTwithAnalyzer_MC_PixelVertices.root'), 'PixelVertices'],
-                        [ TFile('reRunHLTwithAnalyzer_MC_VerticesPFFilter.root'), 'VericesPFFilter'] ],
+                        [ TFile('reRunHLTwithAnalyzer_MC_VerticesPF.root'), 'VerticesPF'] ],
                         i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in PUlist  ], i[1], i[2], i[3], i[4], i[5], i[5] )
 
 
