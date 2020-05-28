@@ -6471,8 +6471,7 @@ process.hltAK4PFPUPPIJets = cms.EDProducer("FastjetJetProducer",
     rcut_factor = cms.double(-1.0),
     restrictInputs = cms.bool(False),
     src = cms.InputTag("hltPuppiProducer"),
-    srcPVs = cms.InputTag("hltPixelVertices"),
-    #srcPVs = cms.InputTag("hltVerticesPF"),
+    srcPVs = cms.InputTag("hltVerticesPF"),
     srcWeights = cms.InputTag(""),
     subjetPtMin = cms.double(-1.0),
     subtractorName = cms.string(''),
@@ -13544,8 +13543,7 @@ process.hltPuppiProducer = cms.EDProducer("PuppiProducer",
     useExistingWeights = cms.bool(False),
     useExp = cms.bool(False),
     useWeightsNoLep = cms.bool(False),
-    #vertexName = cms.InputTag("hltVerticesPF"),
-    vertexName = cms.InputTag("hltPixelVertices"),
+    vertexName = cms.InputTag("hltVerticesPF"),
     vtxNdofCut = cms.int32(4),
     vtxZCut = cms.double(24.0)
 )
@@ -20216,7 +20214,7 @@ process.HLT_PFSKJetNoThreshold_Pt350_v1 = cms.Path(process.HLTBeginSequence+proc
 #######################################################################################################
 
 # Additional output definition
-process.TFileService=cms.Service("TFileService",fileName=cms.string( 'reRunHLTwithAnalyzer_MC_PixelVertices.root' ) )
+process.TFileService=cms.Service("TFileService",fileName=cms.string( 'reRunHLTwithAnalyzer_MC.root' ) )
 
 #################### Trigger Responses
 process.TriggerResponseDummy = cms.EDAnalyzer('TriggerResponses',

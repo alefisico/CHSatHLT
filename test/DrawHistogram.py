@@ -12,6 +12,7 @@ import argparse
 sys.path.insert(0,'../python/')
 import CMS_lumi as CMS_lumi
 import tdrstyle as tdrstyle
+from collections import OrderedDict
 
 #gROOT.Reset()
 gROOT.SetBatch()
@@ -325,56 +326,58 @@ def plot2DTriggerEfficiency( inFileSample, dataset, triggerDenom, name, xlabel, 
 #	return Efficiency
 
 
-def diffplotTriggerEfficiency( inFileSamples, name, cut, xmin, xmax, rebin, labX, labY, log, PU ):
-	"""docstring for plot"""
+def diffplotTriggerEfficiency( name, diffTriggers, labelX, xmin, xmax, rebin, log ):
+    """docstring for plot"""
 
-	outputFileName = name+'_'+cut+"_"+args.trigger+'_'+'_TriggerEfficiency'+args.version+'.'+args.extension
-	print 'Processing.......', outputFileName
+    outputFileName = name+'_'+'_'.join([ q.split('_')[0] for q in diffTriggers])+'_'+(next(iter(diffTriggers)).split('_')[1])+'_TriggerEfficiency_'+args.version+'.'+args.extension
+    print 'Processing.......', outputFileName
 
-	diffEffDenom = {}
-	diffEffPassing = {}
-	diffEff = {}
-	for sam in inFileSamples:
-		diffEffDenom[ sam ] = inFileSamples[ sam ].Get( 'TriggerEfficiency'+args.trigger+'/'+name+'Denom_'+cut ) #cutDijet' ) #+cut )
-		diffEffDenom[ sam ].Rebin(rebin)
-		diffEffPassing[ sam ] = inFileSamples[ sam ].Get( 'TriggerEfficiency'+args.trigger+'/'+name+'Passing_'+cut ) #cutHT' ) #+cut )
-		diffEffPassing[ sam ].Rebin(rebin)
-		diffEff[ sam ] = TGraphAsymmErrors( diffEffPassing[sam], diffEffDenom[sam], 'cp'  )
-		#Efficiency = TEfficiency( Passing, Denom )
+    diffEffDenom = {}
+    diffEffPassing = {}
+    diffEff = OrderedDict()
+    for trigger in diffTriggers:
+        print trigger+'/'+name+'Denom'
+        diffEffDenom[ trigger ] = Samples[next(iter(Samples))][0].Get( trigger+'/'+name+'Denom' )
+        diffEffDenom[ trigger ].Rebin(rebin)
+        diffEffPassing[ trigger ] = Samples[next(iter(Samples))][0].Get( trigger+'/'+name+'Passing' )
+        diffEffPassing[ trigger ].Rebin(rebin)
+        diffEff[ trigger ] = TGraphAsymmErrors( diffEffPassing[trigger], diffEffDenom[trigger], 'cp'  )
+        #Efficiency = TEfficiency( Passing, Denom )
 
-	#binWidth = DenomOnly.GetBinWidth(1)
+    #binWidth = DenomOnly.GetBinWidth(1)
 
-	legend=TLegend(0.50,0.75,0.90,0.90)
-	legend.SetFillStyle(0)
-	legend.SetTextSize(0.04)
+    legend=TLegend(0.50,0.25,0.90,0.55)
+    legend.SetFillStyle(0)
+    legend.SetTextSize(0.04)
 
-	can1 = TCanvas('c1', 'c1',  10, 10, 750, 500 )
-	dummy=1
-	for q in diffEff:
-		diffEff[q].SetMarkerStyle(8)
-		diffEff[q].SetMarkerColor(dummy)
-		legend.AddEntry( diffEff[ q ], q, 'pl' )
-		dummy+=1
+    can1 = TCanvas('c1', 'c1',  10, 10, 750, 500 )
+    dummy=1
+    for q in diffEff:
+        diffEff[q].SetMarkerStyle(8)
+        diffEff[q].SetMarkerColor(dummy)
+        legend.AddEntry( diffEff[ q ], q.split('PF')[1], 'pl' )
+        dummy+=1
 
-	diffEff[diffEff.iterkeys().next()].SetMinimum(0.8)
-	diffEff[diffEff.iterkeys().next()].SetMaximum(1.15)
-	diffEff[diffEff.iterkeys().next()].GetYaxis().SetLabelSize(0.05)
-	diffEff[diffEff.iterkeys().next()].GetXaxis().SetLabelSize(0.05)
-	diffEff[diffEff.iterkeys().next()].GetYaxis().SetTitleSize(0.06)
-	diffEff[diffEff.iterkeys().next()].GetYaxis().SetTitleOffset(0.8)
-	diffEff[diffEff.iterkeys().next()].GetXaxis().SetTitleOffset(0.8)
-	diffEff[diffEff.iterkeys().next()].GetXaxis().SetLimits( xmin, xmax )
-	diffEff[diffEff.iterkeys().next()].Draw('AP')
-	for q in diffEff: diffEff[q].Draw("P same")
-	labelAxis( name, diffEff[diffEff.iterkeys().next()], 'SoftDrop')
-	CMS_lumi.relPosX = 0.11
-	CMS_lumi.cmsTextSize = 0.7
-	CMS_lumi.extraOverCmsTextSize = 0.6
-	CMS_lumi.CMS_lumi(can1, 4, 0)
-	legend.Draw()
+    #diffEff[diffEff.iterkeys().next()].SetMinimum(0.8)
+    diffEff[diffEff.iterkeys().next()].SetMaximum(1.15)
+    diffEff[diffEff.iterkeys().next()].GetYaxis().SetLabelSize(0.05)
+    diffEff[diffEff.iterkeys().next()].GetXaxis().SetLabelSize(0.05)
+    diffEff[diffEff.iterkeys().next()].GetYaxis().SetTitleSize(0.06)
+    diffEff[diffEff.iterkeys().next()].GetYaxis().SetTitleOffset(0.8)
+    diffEff[diffEff.iterkeys().next()].GetXaxis().SetTitleOffset(0.8)
+    diffEff[diffEff.iterkeys().next()].GetXaxis().SetLimits( xmin, xmax )
+    diffEff[diffEff.iterkeys().next()].GetXaxis().SetTitle( labelX )
+    diffEff[diffEff.iterkeys().next()].GetYaxis().SetTitle( 'Efficiency' )
+    diffEff[diffEff.iterkeys().next()].Draw('AP')
+    for q in diffEff: diffEff[q].Draw("P same")
+    CMS_lumi.relPosX = 0.11
+    CMS_lumi.cmsTextSize = 0.7
+    CMS_lumi.extraOverCmsTextSize = 0.6
+    CMS_lumi.CMS_lumi(can1, 4, 0)
+    legend.Draw()
 
-	can1.SaveAs( 'Plots/'+outputFileName )
-	del can1
+    can1.SaveAs( 'Plots/'+outputFileName )
+    del can1
 
 def plot2D( inFile, sample, name, titleXAxis, titleXAxis2, Xmin, Xmax, rebinx, Ymin, Ymax, rebiny, legX, legY ):
 	"""docstring for plot"""
@@ -566,7 +569,6 @@ def simpleComparisonTwoFiles( files, histName, listComparison, labelX, xmin, xma
                 legend.AddEntry( dictHistos[ k+ifile[1] ], label, 'pl' )
             except ZeroDivisionError: dictHistos.pop(k+ifile[1])
 
-        print labels
         outputFileName = histName+'_'+k+'_'.join(labels)+'_simpleComparison_'+args.version+'.'+args.extension
         print 'Processing.......', outputFileName
 
@@ -577,7 +579,7 @@ def simpleComparisonTwoFiles( files, histName, listComparison, labelX, xmin, xma
         dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleSize(0.06)
         dictHistos[next(iter(dictHistos))].GetYaxis().SetTitleOffset(0.9)
         dictHistos[next(iter(dictHistos))].GetXaxis().SetTitleOffset(0.8)
-        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( ('Response' if histName.startswith('resp') else 'Normalized / ')+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
+        dictHistos[next(iter(dictHistos))].GetYaxis().SetTitle( ('Response ' if histName.startswith('resp') else 'Normalized / ')+str(dictHistos[next(iter(dictHistos))].GetBinWidth(1)) )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetTitle( labelX )
         dictHistos[next(iter(dictHistos))].GetXaxis().SetRangeUser( xmin, xmax )
         dictHistos[next(iter(dictHistos))].SetMaximum( 1.2*max([ dictHistos[x].GetMaximum() for x in dictHistos  ]) )
@@ -687,6 +689,9 @@ if __name__ == '__main__':
         [ 'compa', 'hltPUJetsEta', 'HLT pu jets eta', -5, 5, 2, False],
         [ 'compa', 'respHLTJetsPtvsEtaGen', 'Gen jet eta', -5, 5, 2, False],
         [ 'compa', 'respHLTJetsPtvsEtaHLT', 'HLT jet eta', -5, 5, 2, False],
+
+        [ 'eff', 'recoLeadJetPt', 'Leading jet pt [GeV]', 100, 1000, 10, True],
+        [ 'eff', 'recoHT', 'HT [GeV]', 500, 1500, 10, True],
             ]
 
     if 'all' in args.single: Plots = [ x[1:] for x in plotList if x[0] in args.proc ]
@@ -700,8 +705,9 @@ if __name__ == '__main__':
     CMS_lumi.lumi_13TeV = ''
 
     Samples = {}
-    Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC.root'), 0 ]
-    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
+    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC_PixelVertices.root'), 0 ]
+    #Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('reRunHLTwithAnalyzer_MC.root'), 0 ]
+    Samples[ 'QCD_Pt-15to3000' ] = [ TFile.Open('Rootfiles/reRunHLTwithAnalyzer_QCD_Pt-15to3000_TuneCP5_Flat_14TeV_pythia8_'+args.version+'.root'), 0 ]
 
 
 #    processingSamples = {}
@@ -732,6 +738,16 @@ if __name__ == '__main__':
                         [ [TFile('reRunHLTwithAnalyzer_MC_PixelVertices.root'), 'PixelVertices'],
                         [ TFile('reRunHLTwithAnalyzer_MC_VerticesPF.root'), 'VerticesPF'] ],
                         i[0], ['ResponseHLTPF'+pu+'HT_'+q for pu in PUlist  ], i[1], i[2], i[3], i[4], i[5], i[5] )
+
+        elif args.proc.startswith('eff'):
+            cuts = [ 'Pt10', 'Pt30','Pt50', 'Pt10Eta5', 'Pt30Eta5', 'Pt50Eta5' ]
+            HT = [ 'HT850', 'HT950', 'HT1050' ]
+            PT = [ 'Pt350', 'Pt400', 'Pt450', 'Pt500' ]
+            for q in cuts:
+                for ht in HT:
+                    diffplotTriggerEfficiency( i[0], ['EffHLTPF'+pu+'HT_'+q+ht for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5] )
+            for pt in PT:
+                diffplotTriggerEfficiency( i[0], ['EffHLTPF'+pu+'Jet_'+pt for pu in [ '', 'CHS', 'PUPPI', 'SK' ] ], i[1], i[2], i[3], i[4], i[5] )
 
 
     ''' MAYBE THIS IS NEEDED LATER< DONT ERASE IT
