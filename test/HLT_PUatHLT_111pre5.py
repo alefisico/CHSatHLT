@@ -1,6 +1,6 @@
 # hltGetConfiguration --offline --full --mc /users/algomez/PUatHLT --setup /dev/CMSSW_11_0_0/GRun --input /store/mc/Run3Winter20DRPremixMiniAOD/QCD_Pt_170to300_TuneCP5_14TeV_pythia8/GEN-SIM-RAW/110X_mcRun3_2021_realistic_v6-v2/40000/A623EE66-618D-FC43-B4FC-6C4029CD68FB.root --unprescale --process HLT2 --globaltag 110X_mcRun3_2021_realistic_v6 --no-output
 
-# /users/algomez/PUatHLT/V39 (CMSSW_11_1_0_pre5)
+# /users/algomez/PUatHLT/V40 (CMSSW_11_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,7 @@ process = cms.Process( "HLT2" )
 process.load("setup_dev_CMSSW_11_0_0_GRun_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/users/algomez/PUatHLT/V39')
+  tableName = cms.string('/users/algomez/PUatHLT/V40')
 )
 
 process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
@@ -6086,7 +6086,7 @@ process.hltPuppiProducer = cms.EDProducer( "PuppiProducer",
       )
     ),
     UseFromPVLooseTight = cms.bool( True ),
-    vertexName = cms.InputTag( "hltVerticesPF" ),
+    vertexName = cms.InputTag( "hltPixelVertices" ),
     EtaMaxPhotons = cms.double( 2.5 ),
     useWeightsNoLep = cms.bool( False ),
     PtMaxNeutralsStartSlope = cms.double( 0.0 ),

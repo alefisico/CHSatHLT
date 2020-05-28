@@ -32,6 +32,7 @@ using namespace std;
 using namespace reco;
 using namespace pat;
 
+template <typename T>
 class TriggerEfficienciesfromMenu : public EDAnalyzer {
 
 	public:
@@ -44,7 +45,7 @@ class TriggerEfficienciesfromMenu : public EDAnalyzer {
       		virtual void beginJob() override;
 
 	EDGetTokenT<TriggerResults> triggerBits_;
-	EDGetTokenT<JetCollection> recojetToken_;
+	EDGetTokenT<vector<T>> recojetToken_;
 	string baseTrigger_;
     vector<string> triggerPass_;
     vector<int> triggerOverlap_;
@@ -61,9 +62,10 @@ class TriggerEfficienciesfromMenu : public EDAnalyzer {
 	map< string, TH2D* > histos2D_;
 };
 
-TriggerEfficienciesfromMenu::TriggerEfficienciesfromMenu(const ParameterSet& iConfig):
+template <typename T>
+TriggerEfficienciesfromMenu<T>::TriggerEfficienciesfromMenu(const ParameterSet& iConfig):
 	triggerBits_(consumes<TriggerResults>(iConfig.getParameter<InputTag>("bits"))),
-	recojetToken_(consumes<JetCollection>(iConfig.getParameter<InputTag>("recojets")))
+	recojetToken_(consumes<vector<T>>(iConfig.getParameter<InputTag>("recojets")))
 {
 	baseTrigger_ = iConfig.getParameter<string>("baseTrigger");
 	triggerPass_ = iConfig.getParameter<vector<string>>("triggerPass");
@@ -75,7 +77,8 @@ TriggerEfficienciesfromMenu::TriggerEfficienciesfromMenu(const ParameterSet& iCo
 	DEBUG_ = iConfig.getParameter<bool>("DEBUG");
 }
 
-void TriggerEfficienciesfromMenu::analyze(const Event& iEvent, const EventSetup& iSetup) {
+template <typename T>
+void TriggerEfficienciesfromMenu<T>::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
     // Accesing the menus
 	Handle<TriggerResults> triggerBits;
@@ -114,12 +117,12 @@ void TriggerEfficienciesfromMenu::analyze(const Event& iEvent, const EventSetup&
 
         /////////////////////////////////////////////////////////////////////////////////
         /// This is for recojets
-        Handle<JetCollection> recojets;
+        Handle<vector<T>> recojets;
         iEvent.getByToken(recojetToken_, recojets);
 
         double recoHT = 0;
         int numRecoJets = 0;
-        for (const pat::Jet &recojet : *recojets) {
+        for (const T &recojet : *recojets) {
 
             if( recojet.pt() < recojetPt_ ) continue;
             if( TMath::Abs(recojet.eta()) > recojetEta_ ) continue;
@@ -188,7 +191,8 @@ void TriggerEfficienciesfromMenu::analyze(const Event& iEvent, const EventSetup&
     }*/
 }
 
-void TriggerEfficienciesfromMenu::beginJob() {
+template <typename T>
+void TriggerEfficienciesfromMenu<T>::beginJob() {
 
     /////////////////////////////////////////////////////////////
 	histos1D_[ "recoLeadJetPt" ] = fs_->make< TH1D >( "recoLeadJetPt", "recoLeadJetPt", 1000, 0., 1000. );
@@ -210,7 +214,8 @@ void TriggerEfficienciesfromMenu::beginJob() {
 	for( auto const& histo : histos2D_ ) histos2D_[ histo.first ]->Sumw2();
 }
 
-void TriggerEfficienciesfromMenu::fillDescriptions(ConfigurationDescriptions & descriptions) {
+template <typename T>
+void TriggerEfficienciesfromMenu<T>::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
 	ParameterSetDescription desc;
 	desc.add<InputTag>("bits", 	InputTag("TriggerResults", "", "HLT2"));
@@ -233,4 +238,7 @@ void TriggerEfficienciesfromMenu::fillDescriptions(ConfigurationDescriptions & d
 }
       
 //define this as a plug-in
-DEFINE_FWK_MODULE(TriggerEfficienciesfromMenu);
+typedef TriggerEfficienciesfromMenu<pat::Jet> TriggerEfficienciesfromMenuReco;
+DEFINE_FWK_MODULE(TriggerEfficienciesfromMenuReco);
+typedef TriggerEfficienciesfromMenu<reco::GenJet> TriggerEfficienciesfromMenuGen;
+DEFINE_FWK_MODULE(TriggerEfficienciesfromMenuGen);

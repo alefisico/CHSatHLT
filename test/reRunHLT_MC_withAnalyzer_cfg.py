@@ -50,7 +50,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000),
+    input = cms.untracked.int32(1000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -21467,9 +21467,12 @@ process.TriggerResponseDummy = cms.EDAnalyzer('TriggerResponses',
         )
 
 #################### Trigger Efficiencies
-process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenu',
+process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenuGen',
+#process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenuReco',
         baseTrigger = cms.string("HLT_PFHTNoThreshold"),
-        recojets = cms.InputTag("slimmedJetsPuppi"),
+        recojets = cms.InputTag("slimmedGenJets"),    ### For Gen
+        #recojets = cms.InputTag("slimmedJets"),      ### For Reco
+        #recojets = cms.InputTag("slimmedJetsPuppi"), ### For Reco
         triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojetPt = cms.double( 30 ),
         recojetEta = cms.double( 2.4 ),
