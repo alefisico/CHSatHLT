@@ -5905,7 +5905,7 @@ process.hltpfNoPileUp = cms.EDProducer( "TPPFCandidatesOnPFCandidates",
     enable = cms.bool( True ),
     topCollection = cms.InputTag( "hltpfPileUp" ),
     name = cms.untracked.string( "pileUpOnPFCandidates" ),
-    verbose = cms.untracked.bool( False )
+   verbose = cms.untracked.bool( False )
 )
 process.hltAK4PFCHSJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 1 ),
