@@ -17500,74 +17500,132 @@ process.TriggerResponseDummy = cms.EDAnalyzer('TriggerResponses',
         recojetEta = cms.double( 2.4 ),
         hltjetPt = cms.double( 30 ),
         hltjetEta = cms.double( 2.4 ),
-        AK8jets = cms.bool( False ),
         DEBUG = cms.bool(False)
         )
 
 ##################### Trigger Efficiencies
-process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenuGen',
-#process.EffHLTPFHT1050pt30 = cms.EDAnalyzer('TriggerEfficienciesfromMenuReco',
-        baseTrigger = cms.string("HLT_PFHT1050"),
+process.EffHLTPFHT1050pt30_genAK4Jets = cms.EDAnalyzer('TriggerEfficienciesfromMenuGen',
+        baseTrigger = cms.string("HLT_PFHT250"),
         recojets = cms.InputTag("slimmedGenJets"),    ### For Gen
-        #recojets = cms.InputTag("slimmedJets"),      ### For Reco
-        #recojets = cms.InputTag("slimmedJetsPuppi"), ### For Reco
         triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
         recojetPt = cms.double( 30 ),
         recojetEta = cms.double( 2.4 ),
-        AK8jets = cms.bool( False ),
         DEBUG = cms.bool(False)
 )
-process.EffHLTPFHT1050pt30_step = cms.EndPath( process.EffHLTPFHT1050pt30 )
+process.EffHLTPFHT1050pt30_genAK4Jets_step = cms.EndPath( process.EffHLTPFHT1050pt30_genAK4Jets )
 
-for PU in [ '', 'CHS', 'PUPPI' ]:
-#    for pt in [ 10, 20, 30, 40, 50 ]:
-#        for eta in [ ('', 2.4), ('Eta5', 5.0) ]:
-    for pt in [ 30 ]:
-        for eta in [ ('', 2.4) ]:
-#
-#            ######### Response
-#            setattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0],
-#                    process.TriggerResponseDummy.clone(
-#                                                    objects = cms.InputTag("hltAK4PF"+PU+"JetsCorrected::HLT2"),
-#                                                    baseTrigger = cms.string("HLT_PF"+PU+"HTNoThreshold"),
-#                                                    #recojetPt = cms.double( 10 ),
-#                                                    recojetPt = cms.double( pt-10 ),
+process.EffHLTPFHT1050pt30_recoAK4CHSJets = cms.EDAnalyzer('TriggerEfficienciesfromMenuReco',
+        baseTrigger = cms.string("HLT_PFHT250"),
+        recojets = cms.InputTag("slimmedJets"),      ### For Reco
+        triggerPass = cms.vstring([ "HLT_PFHT1050" ] ),
+        recojetPt = cms.double( 30 ),
+        recojetEta = cms.double( 2.4 ),
+        DEBUG = cms.bool(False)
+)
+process.EffHLTPFHT1050pt30_recoAK4CHSJets_step = cms.EndPath( process.EffHLTPFHT1050pt30_recoAK4CHSJets )
+
+process.EffHLTPFHT1050pt30_recoAK4PUPPIJets = process.EffHLTPFHT1050pt30_recoAK4CHSJets.clone(
+        recojets = cms.InputTag("slimmedJetsPuppi"), ### For Reco
+        )
+process.EffHLTPFHT1050pt30_recoAK4PUPPIJets_step = cms.EndPath( process.EffHLTPFHT1050pt30_recoAK4PUPPIJets )
+
+for m in ['EffHLTPFHT1050pt30_genAK4Jets', 'EffHLTPFHT1050pt30_recoAK4CHSJets', 'EffHLTPFHT1050pt30_recoAK4PUPPIJets']:
+
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHSHT1050pt30'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFCHSHT1050" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHSHT1050pt30')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFCHSHT1050pt30'))  ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPIHT1050pt30'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFPUPPIHT1050" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPIHT1050pt30')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFPUPPIHT1050pt30'))  ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFJet550'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFJet550" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFJet550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFJet550'))) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHS550'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFCHS550" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHS550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFCHS550'))) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFPUPPI550" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550'))) )
+
+
+##################### For AK8 jets
+
+process.EffHLTAK8PFJet550_recoAK8PUPPIJets = process.EffHLTPFHT1050pt30_recoAK4CHSJets.clone(
+        recojets = cms.InputTag("slimmedJetsAK8"),
+        triggerPass = cms.vstring([ "HLT_AK8PFJet550" ] ),
+        recojetPt = cms.double( 200 ),
+        recojetEta = cms.double( 2.4 ),
+        )
+process.EffHLTAK8PFJet550_recoAK8PUPPIJets_step = cms.EndPath( process.EffHLTAK8PFJet550_recoAK8PUPPIJets )
+
+process.EffHLTAK8PFPUPPIJet550_recoAK8PUPPIJets = process.EffHLTAK8PFJet550_recoAK8PUPPIJets.clone(
+        triggerPass = cms.vstring([ "HLT_AK8PFPUPPIJet550" ] ),
+        )
+process.EffHLTAK8PFPUPPIJet550_recoAK8PUPPIJets_step = cms.EndPath( process.EffHLTAK8PFPUPPIJet550_recoAK8PUPPIJets )
+
+process.EffHLTAK8PFJet550_genAK8Jets = process.EffHLTPFHT1050pt30_genAK4Jets.clone(
+        recojets = cms.InputTag("slimmedGenJetsAK8"),
+        triggerPass = cms.vstring([ "HLT_AK8PFJet550" ] ),
+        recojetPt = cms.double( 200 ),
+        recojetEta = cms.double( 2.4 ),
+        )
+process.EffHLTAK8PFJet550_genAK8Jets_step = cms.EndPath( process.EffHLTAK8PFJet550_genAK8Jets )
+
+process.EffHLTAK8PFPUPPIJet550_genAK8Jets = process.EffHLTAK8PFJet550_genAK8Jets.clone(
+        triggerPass = cms.vstring([ "HLT_AK8PFPUPPIJet550" ] ),
+        )
+process.EffHLTAK8PFPUPPIJet550_genAK8Jets_step = cms.EndPath( process.EffHLTAK8PFPUPPIJet550_genAK8Jets )
+
+####################################################################
+#for PU in [ '', 'CHS', 'PUPPI' ]:
+##    for pt in [ 10, 20, 30, 40, 50 ]:
+##        for eta in [ ('', 2.4), ('Eta5', 5.0) ]:
+#    for pt in [ 30 ]:
+#        for eta in [ ('', 2.4) ]:
+##
+##            ######### Response
+##            setattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0],
+##                    process.TriggerResponseDummy.clone(
+##                                                    objects = cms.InputTag("hltAK4PF"+PU+"JetsCorrected::HLT2"),
+##                                                    baseTrigger = cms.string("HLT_PF"+PU+"HTNoThreshold"),
+##                                                    #recojetPt = cms.double( 10 ),
+##                                                    recojetPt = cms.double( pt-10 ),
+##                                                    recojetEta = cms.double( eta[1] ),
+##                                                    hltjetPt = cms.double( pt ),
+##                                                    hltjetEta = cms.double( eta[1] )
+##                                                    ))
+##            setattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+"_step",
+##                    cms.EndPath( getattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0] ) ) )
+##
+##
+#            ######### Trigger efficiency
+#            for HT in [ '1050'  ] : #'850', '900', '950', '1000', '1050' ]:
+#                #setattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT,
+#                setattr( process, 'EffHLTPF'+PU+'HT'+HT,
+#                        process.EffHLTPFHT1050pt30.clone(
+#                                                    baseTrigger = cms.string("HLT_PFHT250"),
+#                                                    #triggerPass = cms.vstring([ 'HLT_PF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ] ),
+#                                                    triggerPass = cms.vstring([ 'HLT_PF'+PU+'HT'+HT ] ),
+#                                                    recojetPt = cms.double( pt ),
 #                                                    recojetEta = cms.double( eta[1] ),
-#                                                    hltjetPt = cms.double( pt ),
-#                                                    hltjetEta = cms.double( eta[1] )
 #                                                    ))
-#            setattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+"_step",
-#                    cms.EndPath( getattr( process, 'ResponseHLTPF'+PU+'HT_Pt'+str(pt)+eta[0] ) ) )
+#                #setattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT+"_step",
+#                #        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT ) ) )
+#                setattr( process, 'EffHLTPF'+PU+'HT'+HT+"_step",
+#                        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HT'+HT ) ) )
 #
-#
-            ######### Trigger efficiency
-            for HT in [ '1050'  ] : #'850', '900', '950', '1000', '1050' ]:
-                #setattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT,
-                setattr( process, 'EffHLTPF'+PU+'HT'+HT,
-                        process.EffHLTPFHT1050pt30.clone(
-                                                    baseTrigger = cms.string("HLT_PFHT250"),
-                                                    #triggerPass = cms.vstring([ 'HLT_PF'+PU+'HTNoThreshold_Pt'+str(pt)+eta[0]+'HT'+HT ] ),
-                                                    triggerPass = cms.vstring([ 'HLT_PF'+PU+'HT'+HT ] ),
-                                                    recojetPt = cms.double( pt ),
-                                                    recojetEta = cms.double( eta[1] ),
-                                                    ))
-                #setattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT+"_step",
-                #        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HT_Pt'+str(pt)+eta[0]+'HT'+HT ) ) )
-                setattr( process, 'EffHLTPF'+PU+'HT'+HT+"_step",
-                        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'HT'+HT ) ) )
-
-    for pt in [ 550 ]: #350, 400, 450, 500 ]:
-        setattr( process, 'EffHLTPF'+PU+'Jet'+str(pt), #_Pt'+str(pt),
-                process.EffHLTPFHT1050pt30.clone(
-                                            #baseTrigger = cms.string("HLT_PF"+PU+"JetNoThreshold"),
-                                            baseTrigger = cms.string("HLT_PFHT250"),
-                                            #triggerPass = cms.vstring([ 'HLT_PF'+PU+'JetNoThreshold_Pt'+str(pt) ] ),
-                                            triggerPass = cms.vstring([ 'HLT_PF'+PU+'Jet'+str(pt) ] ),
-                                            recojetPt = cms.double( pt ),
-                                            recojetEta = cms.double( 5 ),
-                                            ))
-        #setattr( process, 'EffHLTPF'+PU+'Jet_Pt'+str(pt)+"_step",
-        #        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'Jet_Pt'+str(pt) ) ) )
-        setattr( process, 'EffHLTPF'+PU+'Jet'+str(pt)+"_step",
-                cms.EndPath( getattr( process, 'EffHLTPF'+PU+'Jet'+str(pt) ) ) )
+#    for pt in [ 550 ]: #350, 400, 450, 500 ]:
+#        setattr( process, 'EffHLTPF'+PU+'Jet'+str(pt), #_Pt'+str(pt),
+#                process.EffHLTPFHT1050pt30.clone(
+#                                            #baseTrigger = cms.string("HLT_PF"+PU+"JetNoThreshold"),
+#                                            baseTrigger = cms.string("HLT_PFHT250"),
+#                                            #triggerPass = cms.vstring([ 'HLT_PF'+PU+'JetNoThreshold_Pt'+str(pt) ] ),
+#                                            triggerPass = cms.vstring([ 'HLT_PF'+PU+'Jet'+str(pt) ] ),
+#                                            recojetPt = cms.double( pt ),
+#                                            recojetEta = cms.double( 5 ),
+#                                            ))
+#        #setattr( process, 'EffHLTPF'+PU+'Jet_Pt'+str(pt)+"_step",
+#        #        cms.EndPath( getattr( process, 'EffHLTPF'+PU+'Jet_Pt'+str(pt) ) ) )
+#        setattr( process, 'EffHLTPF'+PU+'Jet'+str(pt)+"_step",
+#                cms.EndPath( getattr( process, 'EffHLTPF'+PU+'Jet'+str(pt) ) ) )
 

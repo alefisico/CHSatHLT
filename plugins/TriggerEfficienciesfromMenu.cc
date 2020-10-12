@@ -52,7 +52,6 @@ class TriggerEfficienciesfromMenu : public EDAnalyzer {
     vector<int> triggerOverlapBase_;
 	double recojetPt_;
 	double recojetEta_;
-	bool AK8jets_;
 	bool DEBUG_;
 	HLTConfigProvider hltConfig;
 	int triggerBit;
@@ -73,7 +72,6 @@ TriggerEfficienciesfromMenu<T>::TriggerEfficienciesfromMenu(const ParameterSet& 
 	triggerOverlapBase_ = iConfig.getParameter<vector<int>>("triggerOverlapBase");
 	recojetPt_ = iConfig.getParameter<double>("recojetPt");
 	recojetEta_ = iConfig.getParameter<double>("recojetEta");
-	AK8jets_ = iConfig.getParameter<bool>("AK8jets");
 	DEBUG_ = iConfig.getParameter<bool>("DEBUG");
 }
 
@@ -222,7 +220,6 @@ void TriggerEfficienciesfromMenu<T>::fillDescriptions(ConfigurationDescriptions 
 	desc.add<string>("baseTrigger", 	"HLT_PFHT800");
 	desc.add<double>("recojetEta", 	2.5);
 	desc.add<double>("recojetPt", 	10);
-	desc.add<bool>("AK8jets", 	true);
 	desc.add<bool>("DEBUG", 	false);
 	desc.add<InputTag>("recojets", 	InputTag("slimmedJets"));
 	vector<string> HLTPass;
