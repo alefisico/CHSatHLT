@@ -17540,12 +17540,12 @@ for m in ['EffHLTPFHT1050pt30_genAK4Jets', 'EffHLTPFHT1050pt30_recoAK4CHSJets', 
     setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFJet550'), getattr( process, m ).clone(
                         triggerPass = cms.vstring([ "HLT_PFJet550" ] ) ) )
     setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFJet550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFJet550'))) )
-    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHS550'), getattr( process, m ).clone(
-                        triggerPass = cms.vstring([ "HLT_PFCHS550" ] ) ) )
-    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHS550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFCHS550'))) )
-    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550'), getattr( process, m ).clone(
-                        triggerPass = cms.vstring([ "HLT_PFPUPPI550" ] ) ) )
-    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFPUPPI550'))) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHSJet550'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFCHSJet550" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFCHSJet550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFCHSJet550'))) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPIJet550'), getattr( process, m ).clone(
+                        triggerPass = cms.vstring([ "HLT_PFPUPPIJet550" ] ) ) )
+    setattr( process, m.replace('HLTPFHT1050pt30','HLT_PFPUPPIJet550')+'_step', cms.EndPath( getattr( process,  m.replace('HLTPFHT1050pt30','HLT_PFPUPPIJet550'))) )
 
 
 ##################### For AK8 jets
